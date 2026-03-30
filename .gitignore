@@ -1,0 +1,6 @@
+data/
+log/
+logs/
+*.log
+*.log.*
+src/*/*.pdf
