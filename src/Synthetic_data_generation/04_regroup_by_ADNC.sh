@@ -19,6 +19,6 @@ PATH_DONOR_DATA="$WORKDIR/data/SEAD_Dataset/patient_subsets"
 OUTPUT_DIR="$WORKDIR/data/SEAD_Dataset/patient_subsets/group"
 
 # Run the script to prepare the bed files for each cell type
-python "$WORKDIR/src/Synthetic_data_generation/regroup_by_group.py" \
+python "$WORKDIR/src/Synthetic_data_generation/regroup_by_ADNC.py" \
   "$PATH_DONOR_DATA" \
    "$OUTPUT_DIR"
