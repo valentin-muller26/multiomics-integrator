@@ -12,12 +12,8 @@ mkdir -p $LOGDIR
 
 # Function to activate the conda environment
 activate_conda() {
-    # Clean the python path  to have no conflict with conda
     unset PYTHONPATH
-    #Setup config for the mamba environment
-    export MAMBA_ROOT_PREFIX=$HOME/.conda
-    source ~/miniforge3/etc/profile.d/conda.sh
-    source ~/miniforge3/etc/profile.d/mamba.sh
-    #Activate the conda environment
-    conda activate "$CONDA_ENV"
+    export CONDA_PREFIX="/data/users/vmuller/miniforge3/envs/$CONDA_ENV"
+    export PATH="$CONDA_PREFIX/bin:$PATH"
 }
+

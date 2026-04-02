@@ -16,7 +16,7 @@ source "$SLURM_SUBMIT_DIR/00_config.sh"
 activate_conda
 
 PATH_DONOR_DATA="$WORKDIR/data/SEAD_Dataset/patient_subsets"
-OUTPUT_DIR="$WORKDIR/data/SEAD_Dataset/patient_subsets/graph"
+OUTPUT_DIR="$WORKDIR/data/SEAD_Dataset/patient_subsets/cell_type_distribution"
 
 # Run the script to prepare the bed files for each cell type
 python "$WORKDIR/src/Synthetic_data_generation/patient_cell_distribution.py" \
