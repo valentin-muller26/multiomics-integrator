@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --output=/data/users/vmuller/0_master_thesis/log/mosim_simulation_%J.out
 #SBATCH --error=/data/users/vmuller/0_master_thesis/log/mosim_simulation_%J.err
-#SBATCH --partition=pibu_el8
+#SBATCH --partition=pshort_el8
 
 set -euo pipefail
 echo $(date)
@@ -13,7 +13,7 @@ source "$SLURM_SUBMIT_DIR/00_config.sh"
 
 activate_conda
 
-DONOR_ID="HC14"
+DONOR_ID="DA19"
 INPUTDIR="/data/users/vmuller/0_master_thesis/data/data_interleukines"
 OUTPUTDIR="/data/users/vmuller/0_master_thesis/data/data_interleukines/simulated_data"
 

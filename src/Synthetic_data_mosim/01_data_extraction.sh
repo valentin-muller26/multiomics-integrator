@@ -20,6 +20,7 @@ mkdir -p "$OUTPUTDIR/ATAC"
 #Retrive the RNA-seq data
 cp $INPUTDIR/*geneCounts.txt $OUTPUTDIR/RNA/
 
+
 mapfile -t list_ATACSEQ_donors < <(find "$INPUTDIR/" -type d -maxdepth 1 -mindepth 1)
 
 for donor in "${list_ATACSEQ_donors[@]}"; do
