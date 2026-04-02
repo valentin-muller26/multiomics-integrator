@@ -21,10 +21,12 @@ parser$add_argument("--donor_id",       type = "character", default = "donor",
                     help = "Donor/group identifier added to obs metadata [default: 'donor']")
 parser$add_argument("--n_rep",          type = "integer",   default = 10,
                     help = "Number of replicates to generate [default: 10]")
+parser$add_argument("--seed_start",     type = "integer",   default = 100,
+                    help = "Starting seed for random number generation [default: 100]")
 args <- parser$parse_args()
 
 N_REP      <- args$n_rep
-SEED_START <- 100
+SEED_START <- args$seed_start
 
 dir.create(args$outdir, showWarnings = FALSE, recursive = TRUE)
 

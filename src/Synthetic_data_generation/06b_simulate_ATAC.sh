@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=sim_ATAC
-#SBATCH --time=1-00:00:00
+#SBATCH --time=10-00:00:00
 #SBATCH --mem=80G
 #SBATCH --cpus-per-task=2
 #SBATCH --output=/data/users/vmuller/0_master_thesis/log/sim_ATAC_%A_%a.out
