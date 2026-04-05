@@ -15,10 +15,13 @@ source "$SLURM_SUBMIT_DIR/00_config.sh"
 # Activate the conda environment from the config file
 activate_conda
 
-PATH_DONOR_DATA="$WORKDIR/data/SEAD_Dataset/patient_subsets"
-OUTPUT_DIR="$WORKDIR/data/SEAD_Dataset/patient_subsets/group"
+# Define the output directory for h5ad files regrouped by ADNC status
+OUTPUTDIR="$PATH_DONOR_SUBSETS/group"
+mkdir -p "$OUTPUTDIR"
 
 # Run the script to prepare the bed files for each cell type
 python "$WORKDIR/src/Synthetic_data_generation/regroup_by_ADNC.py" \
-  "$PATH_DONOR_DATA" \
-   "$OUTPUT_DIR"
+  "$PATH_DONOR_SUBSETS" \
+   "$OUTPUTDIR"
+
+echo "Finished"
