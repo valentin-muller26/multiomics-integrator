@@ -115,22 +115,25 @@ for(current_ind_treat in colnames(custom_atacseq)){
   cat("Library size RNA:", rna_depth, "M | ATAC:", atac_depth, "M for", current_ind_treat, "\n")
 
   
-    simulation <- mosim(
-    omics        = c("RNA-seq", "DNase-seq"),
-    times        = c(0, 1),
-    numberGroups = 1,
-    numberReps   = 10,
-    diffGenes    = 0.0001,
-    omicsOptions = list(
-      "RNA-seq" = list(
-        data            = rna_seed
-      ),
-      "DNase-seq" = list(
-        data            = atac_seed,
-        idToGene        = IDtogene
-      )
+  simulation <- mosim(
+  omics        = c("RNA-seq", "DNase-seq"),
+  times        = 1,
+  numberGroups = 2,
+  numberReps   = 10,
+  diffGenes    = 0.0001,
+  minMaxFC     = c(1.0, 1.0),   # <-- fold change fixé à 1 = pas de DE
+  omicsOptions = list(
+    "RNA-seq" = list(
+      data  = rna_seed,
+      depth = rna_depth
+    ),
+    "DNase-seq" = list(
+      data     = atac_seed,
+      idToGene = IDtogene,
+      depth    = atac_depth
     )
   )
+)
 
   print(simulation@simulators$SimRNAseq@depth)
   print(simulation@simulators$SimDNaseseq@depth)
@@ -140,12 +143,12 @@ for(current_ind_treat in colnames(custom_atacseq)){
   dataRNAseq  <- omicResults(simulation, "RNA-seq")
   dataATACseq <- omicResults(simulation, "DNase-seq")
   
-  #dataRNAseq  <- dataRNAseq  %>% select(!starts_with("Group2"))
-  #dataATACseq <- dataATACseq %>% select(!starts_with("Group2"))
-  dataRNAseq  <- dataRNAseq  %>% select(!starts_with("Group1.Time1"))
-  dataATACseq <- dataATACseq %>% select(!starts_with("Group1.Time1"))
-  colnames(dataRNAseq)  <- gsub("Group1.Time0", current_ind_treat, colnames(dataRNAseq))
-  colnames(dataATACseq) <- gsub("Group1.Time0", current_ind_treat, colnames(dataATACseq))
+  dataRNAseq  <- dataRNAseq  %>% select(!starts_with("Group2"))
+  dataATACseq <- dataATACseq %>% select(!starts_with("Group2"))
+  #dataRNAseq  <- dataRNAseq  %>% select(!starts_with("Group1.Time1"))
+  #dataATACseq <- dataATACseq %>% select(!starts_with("Group1.Time1"))
+  colnames(dataRNAseq)  <- gsub("Group1.Time1", current_ind_treat, colnames(dataRNAseq))
+  colnames(dataATACseq) <- gsub("Group1.Time1", current_ind_treat, colnames(dataATACseq))
   
   write.table(dataRNAseq,  paste0(outdir_simu_RNA,  "/", current_ind_treat, "RNA.tsv"),  sep = "\t", quote = FALSE, col.names = NA)
   write.table(dataATACseq, paste0(outdir_simu_ATAC, "/", current_ind_treat, "ATAC.tsv"), sep = "\t", quote = FALSE, col.names = NA)
