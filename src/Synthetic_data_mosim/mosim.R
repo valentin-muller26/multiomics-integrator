@@ -141,12 +141,14 @@ for(current_ind_treat in colnames(custom_atacseq)){
     omicsOptions = list(
       "RNA-seq" = list(
         data  = rna_seed,
-        depth = rna_depth
+        depth = rna_depth,
+        replicateParams = list(a = 0.001, b = 0.001)
       ),
       "DNase-seq" = list(
         data     = atac_seed,
         idToGene = IDtogene,
-        depth    = atac_depth
+        depth    = atac_depth,
+        replicateParams = list(a = 0.001, b = 0.001)
       )
     )
   )
