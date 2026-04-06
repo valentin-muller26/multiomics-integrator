@@ -95,7 +95,6 @@ cat("List of treatment for the RNAseq", sort(column_donor), "\n")
 write.table(custom_atacseq, paste0(outdir_real, "/", individual_id, "_real_ATAC.tsv"), sep = "\t", quote = FALSE, col.names = NA)
 write.table(custom_rnaseq[, sort(column_donor)], paste0(outdir_real, "/", individual_id, "_real_RNA.tsv"), sep = "\t", quote = FALSE, col.names = NA)
 
-
 #-------------------------------------------------------------------------------------------------------------------------------------------------
 # Boucle simulation complète avec best_b
 #-------------------------------------------------------------------------------------------------------------------------------------------------
@@ -114,26 +113,27 @@ for(current_ind_treat in colnames(custom_atacseq)){
   atac_depth <- sum(atac_seed$Counts) / 1e6
   cat("Library size RNA:", rna_depth, "M | ATAC:", atac_depth, "M for", current_ind_treat, "\n")
 
-  
+  set.seed(42)
+
   simulation <- mosim(
-  omics        = c("RNA-seq", "DNase-seq"),
-  times        = 1,
-  numberGroups = 2,
-  numberReps   = 10,
-  diffGenes    = 0.0001,
-  minMaxFC     = c(1.0, 1.0),   # <-- fold change fixé à 1 = pas de DE
-  omicsOptions = list(
-    "RNA-seq" = list(
-      data  = rna_seed,
-      depth = rna_depth
-    ),
-    "DNase-seq" = list(
-      data     = atac_seed,
-      idToGene = IDtogene,
-      depth    = atac_depth
+    omics        = c("RNA-seq", "DNase-seq"),
+    times        = 1,
+    numberGroups = 2,
+    numberReps   = 10,
+    diffGenes    = 0.0001,
+    minMaxFC     = c(1.0, 1.0),
+    omicsOptions = list(
+      "RNA-seq" = list(
+        data  = rna_seed,
+        depth = rna_depth
+      ),
+      "DNase-seq" = list(
+        data     = atac_seed,
+        idToGene = IDtogene,
+        depth    = atac_depth
+      )
     )
   )
-)
 
   print(simulation@simulators$SimRNAseq@depth)
   print(simulation@simulators$SimDNaseseq@depth)
@@ -145,8 +145,6 @@ for(current_ind_treat in colnames(custom_atacseq)){
   
   dataRNAseq  <- dataRNAseq  %>% select(!starts_with("Group2"))
   dataATACseq <- dataATACseq %>% select(!starts_with("Group2"))
-  #dataRNAseq  <- dataRNAseq  %>% select(!starts_with("Group1.Time1"))
-  #dataATACseq <- dataATACseq %>% select(!starts_with("Group1.Time1"))
   colnames(dataRNAseq)  <- gsub("Group1.Time1", current_ind_treat, colnames(dataRNAseq))
   colnames(dataATACseq) <- gsub("Group1.Time1", current_ind_treat, colnames(dataATACseq))
   
@@ -164,8 +162,18 @@ rna_files <- list.files(outdir_simu_RNA,
 cat("RNA files found:\n")
 cat(basename(rna_files), sep = "\n")
 
+rna_rownames_list <- lapply(rna_files, function(f) {
+  sort(rownames(read.table(f, header = TRUE, row.names = 1, sep = "\t")))
+})
+if(length(unique(rna_rownames_list)) != 1){
+  stop("ERROR: RNA files do not have the same gene IDs across treatments!")
+} else {
+  cat("RNA rownames check: OK\n")
+}
+
 sim_rna <- do.call(cbind, lapply(rna_files, function(f) {
-  read.table(f, header = TRUE, row.names = 1, sep = "\t")
+  df <- read.table(f, header = TRUE, row.names = 1, sep = "\t")
+  df[order(rownames(df)), , drop = FALSE]
 }))
 cat("RNA merged:", nrow(sim_rna), "x", ncol(sim_rna), "\n")
 
@@ -175,8 +183,18 @@ atac_files <- list.files(outdir_simu_ATAC,
 cat("ATAC files found:\n")
 cat(basename(atac_files), sep = "\n")
 
+atac_rownames_list <- lapply(atac_files, function(f) {
+  sort(rownames(read.table(f, header = TRUE, row.names = 1, sep = "\t")))
+})
+if(length(unique(atac_rownames_list)) != 1){
+  stop("ERROR: ATAC files do not have the same peak IDs across treatments!")
+} else {
+  cat("ATAC rownames check: OK\n")
+}
+
 sim_atac <- do.call(cbind, lapply(atac_files, function(f) {
-  read.table(f, header = TRUE, row.names = 1, sep = "\t")
+  df <- read.table(f, header = TRUE, row.names = 1, sep = "\t")
+  df[order(rownames(df)), , drop = FALSE]
 }))
 cat("ATAC merged:", nrow(sim_atac), "x", ncol(sim_atac), "\n")
 
