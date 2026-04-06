@@ -1,4 +1,5 @@
 library(MOSim)
+library(DESeq2)
 library(dplyr)
 library(argparse)
 
@@ -83,17 +84,31 @@ stopifnot(rownames(rna1) == rownames(rna2))
 custom_rnaseq <- cbind(rna1, rna2)
 custom_rnaseq <- custom_rnaseq[!grepl("^N_", rownames(custom_rnaseq)), ]
 
+#-----------------------------------------------------------------------------------------------------------------------------------------------
+#rlog transformation sur tous les traitements du donneur
+#-----------------------------------------------------------------------------------------------------------------------------------------------
+column_donor <- grep(paste0("^", individual_id), colnames(custom_rnaseq), value = TRUE)
+rnaseq_donor <- custom_rnaseq[, sort(column_donor)]
+
+dds_donor <- DESeqDataSetFromMatrix(
+  countData = as.matrix(rnaseq_donor),
+  colData   = data.frame(condition = factor(colnames(rnaseq_donor)),
+                         row.names = colnames(rnaseq_donor)),
+  design    = ~1
+)
+rlog_donor <- rlog(dds_donor, blind = TRUE)
+custom_rnaseq_rlog <- as.data.frame(assay(rlog_donor))
+
 #-------------------------------------------------------------------------------------------------------------------------------------------------
 #Simulation
 #-------------------------------------------------------------------------------------------------------------------------------------------------
 
 cat("List of treatment for the ATACseq", sort(colnames(custom_atacseq)), "\n")
-column_donor <- grep(paste0("^", individual_id), colnames(custom_rnaseq), value = TRUE)
 cat("List of treatment for the RNAseq", sort(column_donor), "\n")
 
 #Save the real data for the donor
 write.table(custom_atacseq, paste0(outdir_real, "/", individual_id, "_real_ATAC.tsv"), sep = "\t", quote = FALSE, col.names = NA)
-write.table(custom_rnaseq[, sort(column_donor)], paste0(outdir_real, "/", individual_id, "_real_RNA.tsv"), sep = "\t", quote = FALSE, col.names = NA)
+write.table(rnaseq_donor,   paste0(outdir_real, "/", individual_id, "_real_RNA.tsv"),  sep = "\t", quote = FALSE, col.names = NA)
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------
 # Boucle simulation complète avec best_b
@@ -103,13 +118,14 @@ for(current_ind_treat in colnames(custom_atacseq)){
     warning(paste("No:", current_ind_treat, "treatment found in the RNAseq data"))
     next
   }
-  rna_seed <- custom_rnaseq %>% select(all_of(current_ind_treat))
+
+  rna_seed <- custom_rnaseq_rlog %>% select(all_of(current_ind_treat))
   colnames(rna_seed) <- "Counts"
-  
+
   atac_seed <- custom_atacseq %>% select(all_of(current_ind_treat))
   colnames(atac_seed) <- "Counts"
-  
-  rna_depth  <- sum(rna_seed$Counts)  / 1e6
+
+  rna_depth  <- sum(custom_rnaseq[, current_ind_treat]) / 1e6
   atac_depth <- sum(atac_seed$Counts) / 1e6
   cat("Library size RNA:", rna_depth, "M | ATAC:", atac_depth, "M for", current_ind_treat, "\n")
 
@@ -139,15 +155,18 @@ for(current_ind_treat in colnames(custom_atacseq)){
   print(simulation@simulators$SimDNaseseq@depth)
   print(omicSettings(simulation))
   experimentalDesign(simulation)
-  
+
   dataRNAseq  <- omicResults(simulation, "RNA-seq")
   dataATACseq <- omicResults(simulation, "DNase-seq")
-  
+
   dataRNAseq  <- dataRNAseq  %>% select(!starts_with("Group2"))
   dataATACseq <- dataATACseq %>% select(!starts_with("Group2"))
   colnames(dataRNAseq)  <- gsub("Group1.Time1", current_ind_treat, colnames(dataRNAseq))
   colnames(dataATACseq) <- gsub("Group1.Time1", current_ind_treat, colnames(dataATACseq))
-  
+
+  #Back-transformation rlog -> counts
+  dataRNAseq <- as.data.frame(apply(dataRNAseq, 2, function(x) pmax(round(2^x), 0)))
+
   write.table(dataRNAseq,  paste0(outdir_simu_RNA,  "/", current_ind_treat, "RNA.tsv"),  sep = "\t", quote = FALSE, col.names = NA)
   write.table(dataATACseq, paste0(outdir_simu_ATAC, "/", current_ind_treat, "ATAC.tsv"), sep = "\t", quote = FALSE, col.names = NA)
   cat("Simulation of", current_ind_treat, "complete\n")
