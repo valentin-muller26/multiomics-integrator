@@ -3,7 +3,7 @@
 This script processes a pair of RNA and ATAC h5ad files from the SEA-AD dataset containing multi donors and multiple modalities (10x Multiome and snRNA-seq or ATACseq data)
 This script identifies the Multiome donors subsets in RNAseq h5ad and then extracts the paired barcodes in the ATAC h5ad, ensuring that only cells profiled in both modalities are retained.
 For each donor, it saves the paired RNA and ATAC subsets as separate h5ad files. ¨
-Additionally, it compiles a summary CSV file containing metadata for all processed donors and a flat list of donor IDs for downstream SLURM array jobs.
+Additionally, it compiles a summary CSV file containing metadata for all processed donors and a list of donor IDs for downstream SLURM array jobs.
 
 Usage:
     python 02_extract_donor.py <input_rna_path> <input_atac_path> <output_path>
@@ -17,7 +17,7 @@ Outputs:
     - <output_path>/<donor>_RNA_multiome_subset.h5ad: Per-donor RNA subset.
     - <output_path>/<donor>_ATAC_multiome_subset.h5ad: Per-donor ATAC subset.
     - <output_path>/donors_summary.csv: Summary metadata for all processed donors.
-    - <output_path>/donor_ids.txt: Flat list of donor IDs for SLURM array jobs.
+    - <output_path>/donor_ids.txt: List of donor IDs for SLURM array jobs.
 """
 
 

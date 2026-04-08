@@ -7,25 +7,27 @@
 #SBATCH --error=/data/users/vmuller/0_master_thesis/log/sim_ATAC_%A_%a.err
 #SBATCH --partition=pibu_el8
 #SBATCH --array=0-3
+
+
 set -euo pipefail
- 
 echo $(date)
+
+# Load config and activate conda environment
 source "$SLURM_SUBMIT_DIR/00_config.sh"
-
-/data/users/vmuller/miniforge3/envs/scReadSim/bin/Rscript --version
-
 activate_conda
 export RETICULATE_PYTHON="$CONDA_PREFIX/bin/python"
 
-
-MANIFEST="/data/users/vmuller/0_master_thesis/data/SEAD_Dataset/models/ATAC/manifest.csv"
+# Load the manifest indicating which model to use for each group
+MANIFEST="$PATH_DATA/models/ATAC/manifest.csv"
+# Extract the model directory and group name for the current task
 MODEL_DIR=$(awk -v line="$((SLURM_ARRAY_TASK_ID + 1))" -F',' 'NR==line {print $2}' "$MANIFEST")
 GROUPNAME=$(awk -v line="$((SLURM_ARRAY_TASK_ID + 1))" -F',' 'NR==line {print $1}' "$MANIFEST")
-SIM_OUT="/data/users/vmuller/0_master_thesis/data/SEAD_Dataset/patient_subsets/simulated_data/ATAC/$GROUPNAME"
- 
+
+# Define the output directory for the simulated data
+SIM_OUT="$PATH_DONOR_SUBSETS/simulated_data/ATAC/$GROUPNAME"
 mkdir -p "$SIM_OUT"
  
-Rscript "$WORKDIR/src/Synthetic_data_generation/simulate_ATAC.R" \
+Rscript "$PATH_SCRIPTS/simulate_ATAC.R" \
   --modeldir  "$MODEL_DIR" \
   --outdir    "$SIM_OUT" \
   --donor_id  "$GROUPNAME"\

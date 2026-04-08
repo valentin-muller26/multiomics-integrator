@@ -7,6 +7,7 @@ export WORKDIR=/data/users/vmuller/0_master_thesis
 export LOGDIR=$WORKDIR/log
 export PATH_DATA=$WORKDIR/data/SEAD_Dataset/
 export PATH_DONOR_SUBSETS=$WORKDIR/data/SEAD_Dataset/patient_subsets
+export PATH_SCRIPTS=$WORKDIR/src/Synthetic_data_generation
 
 # Define the URLs and filenames for the RNA and ATAC data from the SEAD dataset.
 export RNA_FILE_SEAD="SEAAD_MTG_RNAseq_final-nuclei.2024-02-13.h5ad"
