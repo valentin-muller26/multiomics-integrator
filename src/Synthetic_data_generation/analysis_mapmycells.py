@@ -1,3 +1,12 @@
+"""
+Analysis script for MapMyCells mapping results.
+
+Loads a MapMyCells output CSV, computes classification accuracy (global and
+per cell type), and generates confusion matrices (normalized and raw).
+
+Usage:
+    python analysis_mapmycells.py <file_name> <input_path> <output_path>
+"""
 #mapmycells
 import pandas as pd
 import argparse
@@ -7,10 +16,10 @@ import matplotlib.pyplot as plt
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("file_name", type=str)
-    parser.add_argument("input_path", type=str)
-    parser.add_argument("output_path", type=str)
+    parser = argparse.ArgumentParser(description="Analyze MapMyCells output and generate classification statistics and confusion matrices.")
+    parser.add_argument("file_name", type=str, help="Name of the input files.")
+    parser.add_argument("input_path", type=str, help="Path to the input CSV file containing MapMyCells results.")
+    parser.add_argument("output_path", type=str, help="Path to the output directory for the analysis results.")
     args = parser.parse_args()
 
     #Create the output directory 
@@ -18,6 +27,8 @@ if __name__ == "__main__":
     output_dir.mkdir(parents=True, exist_ok=True)
 
     #Load the results of mapmycells and convert the cell_id to the cell type by taking the first part of the cell_id before the "_"
+    # The true cell type is the substring before the first underscore
+    # (e.g. "Astrocyte_001" -> "Astrocyte").
     mapmycells_data = pd.read_csv(args.input_path,skiprows=4)
     mapmycells_data["cell_type"] = mapmycells_data["cell_id"].str.split("_").str[0]
     number_cell = mapmycells_data.shape[0]
@@ -45,6 +56,7 @@ if __name__ == "__main__":
     fig, ax = plt.subplots(figsize=(14, 12))
     cm_display.plot(ax=ax, cmap="Blues", xticks_rotation=90)
     plt.tight_layout()
+    # Save the confusion matrix plot
     output_file = output_dir / f"{args.file_name}_confusionmatrix_percentage.png"
     plt.savefig(output_file)
 
@@ -61,5 +73,6 @@ if __name__ == "__main__":
     fig, ax = plt.subplots(figsize=(14, 12))
     cm_display.plot(ax=ax, cmap="Blues", xticks_rotation=90)
     plt.tight_layout()
+    # Save the confusion matrix plot
     output_file = output_dir / f"{args.file_name}_confusionmatrix_raw.png"
     plt.savefig(output_file)
