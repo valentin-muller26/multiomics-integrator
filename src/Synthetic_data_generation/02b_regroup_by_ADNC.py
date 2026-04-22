@@ -85,6 +85,9 @@ def grouping_by_ADNC(file_paths, assay_name, output_dir):
         gc.collect()
 
     manifest = {}
+    
+    min_donor_count = min(len(donor_paths) for donor_paths in groups.values())
+    
 
     # Iterate over the groups, concatenate the files and save the result
     for group_name, donor_paths in groups.items():
@@ -92,7 +95,12 @@ def grouping_by_ADNC(file_paths, assay_name, output_dir):
             print(f"SKIP : No files in group '{group_name}'")
             continue
 
-        print(f"Fusing {len(donor_paths)} file(s) for '{group_name}'...")
+        
+        print(f"\n[{group_name}] {len(donor_paths)} donor(s) available")
+        if len(donor_paths) > min_donor_count:
+            donor_paths = donor_paths[:min_donor_count]
+            groups[group_name] = donor_paths
+            print(f"  -> Limiting to {min_donor_count} files for balance")
 
         # Load the data for concatenation
         adatas = [ad.read_h5ad(donor_path) for donor_path in donor_paths]
@@ -144,18 +152,18 @@ if __name__ == "__main__":
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Listing the donor RNA files
-    rna_paths = [
+    rna_paths = sorted([
         os.path.join(args.input_path, filename)
         for filename in os.listdir(args.input_path)
         if filename.endswith("RNA_multiome_subset.h5ad")
-    ]
+    ])
 
     # Listing the donor ATAC files
-    atac_paths = [
+    atac_paths = sorted([
         os.path.join(args.input_path, filename)
         for filename in os.listdir(args.input_path)
         if filename.endswith("ATAC_multiome_subset.h5ad")
-    ]
+    ])
 
     grouping_by_ADNC(rna_paths, "RNA", output_dir)
     grouping_by_ADNC(atac_paths, "ATAC", output_dir)

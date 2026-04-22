@@ -3,8 +3,8 @@
 #SBATCH --time=00:10:00
 #SBATCH --mem=4G
 #SBATCH --cpus-per-task=1
-#SBATCH --output=/data/users/vmuller/0_master_thesis/log/cell_type_distribution_analysis_%A_%a.out
-#SBATCH --error=/data/users/vmuller/0_master_thesis/log/cell_type_distribution_analysis_%A_%a.err
+#SBATCH --output=/data/users/vmuller/0_master_thesis/log/cell_type_distribution_analysis_%J.out
+#SBATCH --error=/data/users/vmuller/0_master_thesis/log/cell_type_distribution_analysis_%J.err
 #SBATCH --partition=pibu_el8
 
 set -euo pipefail
