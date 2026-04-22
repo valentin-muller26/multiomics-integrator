@@ -31,7 +31,7 @@ echo "$MODEL_DIR"
 mkdir -p "$MODEL_DIR"
  
 #Run the R script to fit the scDesign3 model for the current donor subset
-Rscript "$PATH_SCRIPTS/fit_model_scDesignRNA.R" \
+Rscript "$PATH_SCRIPTS/05a_fit_model_scDesignRNA.R" \
   --rnafile "$RNA_FILE" \
   --outdir  "$MODEL_DIR"
 
