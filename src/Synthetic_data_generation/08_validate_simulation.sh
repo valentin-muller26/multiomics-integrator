@@ -23,7 +23,7 @@ OUTPUTDIR="/data/users/vmuller/0_master_thesis/data/SEAD_Dataset/patient_subsets
  
 mkdir -p "$OUTPUTDIR"
 
-Rscript  validate_simulation.R\
+Rscript  "$PATH_SCRIPTS/08_validate_simulation.R" \
   --real_sce      "$RNA_FILE" \
   --sim_sce       "$SIMULATE_FILE" \
   --modality      RNA \
