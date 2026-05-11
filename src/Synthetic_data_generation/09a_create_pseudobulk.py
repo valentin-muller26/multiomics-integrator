@@ -50,12 +50,18 @@ column_to_donor = f"{adnc}_{rep}"  # "High_rep01"
 # Load the single-cell data from the input file
 adata = anndata.read_h5ad(path)
 
-# calculate pseudobulk counts by summing the counts across all cells for each gene
-pseudobulk = np.array(adata.X.sum(axis=0)).flatten()
 
-#create a DataFrame with the pseudobulk counts
+# Number of unique donors in this ADNC group
+n_donors = adata.obs["donor_id"].nunique()
+print(f"Number of donors in {column_to_donor}: {n_donors}")
+
+# Sum across all cells, then divide by number of donors
+pseudobulk = np.array(adata.X.sum(axis=0)).flatten()
+pseudobulk_normalized = np.round(pseudobulk / n_donors).astype(np.int64)
+
+
 pseudobulk_df = pd.DataFrame(
-    pseudobulk,
+    pseudobulk_normalized,
     index=adata.var_names,
     columns=[column_to_donor],
     dtype=np.int64

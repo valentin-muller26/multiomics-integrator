@@ -48,10 +48,15 @@ if args.modality == "RNA":
 else:
     mat = adata.X
 
+# Number of unique donors in this ADNC group
+n_donors = adata.obs["Donor.ID"].nunique()
+print(f"Number of donors in {label}: {n_donors}")
+
 pseudobulk = np.array(mat.sum(axis=0)).flatten()
+pseudobulk_normalized = np.round(pseudobulk / n_donors).astype(np.int64)
 
 pseudobulk_df = pd.DataFrame(
-    pseudobulk,
+    pseudobulk_normalized,
     index=adata.var_names,
     columns=[label],
     dtype=np.int64
