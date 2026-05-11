@@ -15,10 +15,27 @@ echo $(date)
 source "$SLURM_SUBMIT_DIR/00_config.sh"
 activate_conda
 
+
+#Retrieve the training data and rename them 
+TRAINING_DATA_DIR="$PATH_DATA/training"
+MODEL_DIR="$WORKDIR/data/SEAD_Dataset/models"
+mkdir -p "$TRAINING_DATA_DIR"
+mkdir -p "$TRAINING_DATA_DIR/ATAC"
+mkdir -p "$TRAINING_DATA_DIR/RNA"
+
+for omic in ATAC RNA; do
+    find "$MODEL_DIR/$omic" -name "training_cells.h5ad" | while read -r file; do
+        group=$(basename "$(dirname "$file")")
+        cp "$file" "$TRAINING_DATA_DIR/$omic/real_${group}.h5ad"
+    done
+done
+
+
+
 #Define the input directories for the real single-cell RNA and ATAC data and the output directories for the pseudobulk data
-INPUT_RNA_DIR="/data/users/vmuller/0_master_thesis/data/SEAD_Dataset/patient_subsets/training data/RNA"
+INPUT_RNA_DIR="$TRAINING_DATA_DIR/RNA"
 OUTPUT_RNA_DIR="/data/users/vmuller/0_master_thesis/data/SEAD_Dataset/patient_subsets/real_pseudobulk/RNA"
-INPUT_ATAC_DIR="/data/users/vmuller/0_master_thesis/data/SEAD_Dataset/patient_subsets/training data/ATAC"
+INPUT_ATAC_DIR="$TRAINING_DATA_DIR/ATAC"
 OUTPUT_ATAC_DIR="/data/users/vmuller/0_master_thesis/data/SEAD_Dataset/patient_subsets/real_pseudobulk/ATAC"
 
 
