@@ -92,38 +92,40 @@ if __name__ == "__main__":
                    annot=donor_cell_types, 
                    fmt='d',
                    cmap="coolwarm",
-                   figsize=(20, 12)) 
+                   figsize=(20, 12),
+                   annot_kws={"size": 13})
 
     #Reorder the columns based on the clustering results to display the cell type distribution in the same order as the heatmap
     reordered_cols = donor_cell_types_norm.columns[heatmap.dendrogram_col.reordered_ind]
-    # Version not normalized
-    # heatmap = sns.clustermap(donor_cell_types, 
-    #                col_colors=col_colors, 
-    #                annot=donor_cell_types, 
-    #                fmt='d',
-    #                cmap="coolwarm",
-    #                figsize=(20, 12)) 
-    # reordered_cols = donor_cell_types.columns[heatmap.dendrogram_col.reordered_ind]
-
 
     # Update the x-axis labels to include the number of cells for each patient and customize the label
     new_labels = [f"{col}\n(n={donor_cell_types[col].sum()})" for col in reordered_cols]
-    heatmap.ax_heatmap.set_xticklabels(new_labels, rotation=45, ha='right', fontsize=7)
+    heatmap.ax_heatmap.set_xticklabels(new_labels, rotation=90, ha='center', fontsize=16)
+
+    # Increase y-axis (cell type) tick labels
+    heatmap.ax_heatmap.set_yticklabels(heatmap.ax_heatmap.get_yticklabels(), fontsize=16)
+    heatmap.ax_heatmap.set_ylabel("Subclass", fontsize=16)
+
+    # Increase colorbar tick label size
+    heatmap.ax_cbar.tick_params(labelsize=14)
+    heatmap.ax_cbar.set_title("% cells", fontsize=16)
 
 
     # Create custom legend handles for the ADNC categories
     legend_handles = [
         Line2D([0], [0], marker='s', color='w',
-            markerfacecolor=color, markersize=11, label=label)
+            markerfacecolor=color, markersize=16, label=label)
         for label, color in ADNC_COLORS.items()
     ]
 
     # Add the legend to the heatmap
     heatmap.ax_col_dendrogram.legend(
-    handles=legend_handles,
-    title="ADNC",
-    loc="center",
-    frameon=False,
+        handles=legend_handles,
+        title="ADNC",
+        loc="center",
+        frameon=False,
+        fontsize=15,
+        title_fontsize=16,
     )
     # Save the heatmap to the output folder created if it doesn't exist
     os.makedirs(args.output_folder, exist_ok=True)
