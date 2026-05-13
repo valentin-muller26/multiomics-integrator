@@ -1,6 +1,6 @@
 """Generate a pseudobulk count file from the simulated single-cell h5ad file for a given donor and replicate.
 
-This script reads one simulated single-cell h5ad file, sums the counts across all cells for each gene to create a pseudobulk profile, 
+This script reads one simulated single-cell h5ad file, sums the counts across all cells for each gene and divides by the number of donors to normalize to create a pseudobulk profile, 
 and saves the result as a tab-separated file named after the donor and replicate.
 
 Usage:
@@ -23,33 +23,28 @@ import numpy as np
 import pandas as pd
 import os
 
-
 parser = argparse.ArgumentParser(
     description="Generate a pseudobulk count file from a simulated donor h5ad file."
 )
 parser.add_argument("--input_path", type=str,
-    help="Path to the input h5ad file. Filename must follow <ADNC>_<rep>_<seed>_<tool>.h5ad format.")
+    help="Path to the input h5ad file. Filename must follow <ADNC>_<rep>_<seed>_<tool>.h5ad format.",required=True)
 parser.add_argument("--output_path", type=str,
-    help="Directory where the pseudobulk .txt file will be saved.")
+    help="Directory where the pseudobulk .txt file will be saved.", required=True)
 args = parser.parse_args()
 
-# Create the output directory if it doesn't exist
-os.makedirs(args.output_path, exist_ok=True)
 
 # Extract the donor name and replicate number from the input file name
 path = args.input_path
 filename = os.path.splitext(os.path.basename(path))[0]  # example "High_rep01_seed101_scDesign3"
 parts = filename.split("_")
 adnc = parts[0]   # "High"
-parts = filename.split("_")
-adnc = parts[0]
-print(f"Processing: {filename}, parts: {parts}")
-rep = next(p for p in parts if p.startswith("rep"))  # "rep01"
+rep = next((p for p in parts if p.startswith("rep")), None) # "rep01"
+if rep is None:
+    raise ValueError(f"No 'rep*' part found in filename: {filename}")
 column_to_donor = f"{adnc}_{rep}"  # "High_rep01"
 
 # Load the single-cell data from the input file
 adata = anndata.read_h5ad(path)
-
 
 # Number of unique donors in this ADNC group
 n_donors = adata.obs["donor_id"].nunique()
@@ -59,7 +54,6 @@ print(f"Number of donors in {column_to_donor}: {n_donors}")
 pseudobulk = np.array(adata.X.sum(axis=0)).flatten()
 pseudobulk_normalized = np.round(pseudobulk / n_donors).astype(np.int64)
 
-
 pseudobulk_df = pd.DataFrame(
     pseudobulk_normalized,
     index=adata.var_names,
@@ -68,5 +62,8 @@ pseudobulk_df = pd.DataFrame(
 )
 
 # Save the pseudobulk results to a text file
+# Create the output directory if it doesn't exist
+os.makedirs(args.output_path, exist_ok=True)
 output_path = os.path.join(args.output_path, f"{adnc}_{rep}_pseudobulk.txt")
 pseudobulk_df.to_csv(output_path, sep="\t")  
+print(f"Saved: {output_path}")

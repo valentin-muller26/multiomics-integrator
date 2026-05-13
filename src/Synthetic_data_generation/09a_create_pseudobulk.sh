@@ -20,8 +20,6 @@ INPUT_RNA_DIR="/data/users/vmuller/0_master_thesis/data/SEAD_Dataset/patient_sub
 OUTPUT_RNA_DIR="/data/users/vmuller/0_master_thesis/data/SEAD_Dataset/patient_subsets/simulated_pseudobulk/RNA"
 INPUT_ATAC_DIR="/data/users/vmuller/0_master_thesis/data/SEAD_Dataset/patient_subsets/simulated_data/ATAC"
 OUTPUT_ATAC_DIR="/data/users/vmuller/0_master_thesis/data/SEAD_Dataset/patient_subsets/simulated_pseudobulk/ATAC"
-
-
 mkdir -p "$OUTPUT_RNA_DIR" "$OUTPUT_ATAC_DIR"
 
 # Find all h5ad files in the input directories
