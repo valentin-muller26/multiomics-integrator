@@ -1,6 +1,6 @@
 """Merge pseudobulk RNA and ATAC files into a single DataFrame and generate metadata.
 
-This script reads individual pseudobulk RNA and ATAC .txt files from RNA and ATAC input directories, 
+This script reads individual pseudobulk RNA and ATAC .txt files from RNA and ATAC input directories containing the pseudobulk data of the simulation , 
 merges them into a single files for the corresponding modality and reorders the ATAC columns to match the RNA sample order.
 It also generates a metadata file with the ADNC condition and numeric label for each sample, which can be used for downstream analyses and deep learning models.
 
@@ -22,7 +22,15 @@ Outputs:
 import argparse
 import pandas as pd
 import os
+import re
 
+parser = argparse.ArgumentParser(
+    description="Merge pseudobulk RNA and ATAC files and generate metadata."
+)
+parser.add_argument("input_path_rna", type=str, help="Directory containing per-donor-replicate pseudobulk RNA .txt files.")
+parser.add_argument("input_path_atac", type=str, help="Directory containing per-donor-replicate pseudobulk ATAC .txt files.")
+parser.add_argument("output_path", type=str, help="Directory where the merged files and metadata will be saved.")
+args = parser.parse_args()
 
 ADNC_LABELS = {
     "Not AD": 0,
@@ -49,6 +57,8 @@ def load_and_merge(input_path: str) -> pd.DataFrame:
         for f in os.listdir(input_path)
         if f.endswith(".txt")
     ]
+    if not files:
+        raise FileNotFoundError(f"No .txt files found in {input_path}")
     dfs = []
     for file in files:
         df = pd.read_csv(file, sep="\t", index_col=0)
@@ -58,16 +68,10 @@ def load_and_merge(input_path: str) -> pd.DataFrame:
     merged = pd.concat(dfs, axis=1, join="outer").fillna(0).astype(int)
     return merged.sort_index(axis=1)
 
-
-parser = argparse.ArgumentParser(
-    description="Merge pseudobulk RNA and ATAC files and generate metadata."
-)
-parser.add_argument("input_path_rna", type=str, help="Directory containing per-donor-replicate pseudobulk RNA .txt files.")
-parser.add_argument("input_path_atac", type=str, help="Directory containing per-donor-replicate pseudobulk ATAC .txt files.")
-parser.add_argument("output_path", type=str, help="Directory where the merged files and metadata will be saved.")
-args = parser.parse_args()
-
-os.makedirs(args.output_path, exist_ok=True)
+def parse_adnc(sample_name):
+    """Extract ADNC from sample name like 'High_rep01' or 'Not_AD_rep01'."""
+    base = re.sub(r"_rep\d+$", "", sample_name)  # strip "_rep01" suffix
+    return base.replace("_", " ")                # "Not_AD" → "Not AD"
 
 # --- 1. Merge RNA and ATAC pseudobulk files ---
 merged_rna = load_and_merge(args.input_path_rna)
@@ -91,13 +95,20 @@ merged_rna = merged_rna[common_samples]
 merged_atac = merged_atac[common_samples]
 
 # Save merged files
+os.makedirs(args.output_path, exist_ok=True)
 merged_rna.to_csv(os.path.join(args.output_path, "RNA_merged_pseudobulk.txt"), sep="\t")
 merged_atac.to_csv(os.path.join(args.output_path, "ATAC_merged_pseudobulk.txt"), sep="\t")
 
 # --- 3. Metadata ---
 metadata = pd.DataFrame({
     "donor_rep": common_samples,
-    "ADNC": [col.split("_")[0] for col in common_samples],
+    "ADNC": [parse_adnc(col) for col in common_samples],
 })
 metadata["label"] = metadata["ADNC"].map(ADNC_LABELS)
+# Check if all ADNC values are valid and map to labels
+if metadata["label"].isna().any():
+    bad = metadata[metadata["label"].isna()]
+    raise ValueError(f"Unmapped ADNC values:\n{bad}")
+
+
 metadata.to_csv(os.path.join(args.output_path, "metadata.csv"), index=False)

@@ -20,7 +20,6 @@ activate_conda
 INPUT_RNA_DIR="/data/users/vmuller/0_master_thesis/data/SEAD_Dataset/patient_subsets/simulated_pseudobulk/RNA"
 INPUT_ATAC_DIR="/data/users/vmuller/0_master_thesis/data/SEAD_Dataset/patient_subsets/simulated_pseudobulk/ATAC"
 OUTPUT_DIR="/data/users/vmuller/0_master_thesis/data/SEAD_Dataset/patient_subsets/simulated_pseudobulk_merged"
-
 mkdir -p "$OUTPUT_DIR"
 
 python "$PATH_SCRIPTS/09b_merge_pseudobulk.py" \
@@ -29,3 +28,4 @@ python "$PATH_SCRIPTS/09b_merge_pseudobulk.py" \
     "$OUTPUT_DIR"
 
 echo "Finished"
+echo $(date)
