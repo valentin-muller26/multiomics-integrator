@@ -10,21 +10,21 @@
 set -euo pipefail
 
 echo $(date)
-
+# Load config and activate conda environment
 source "$SLURM_SUBMIT_DIR/00_config.sh"
 activate_conda
 
-REAL_RNA="/data/users/vmuller/0_master_thesis/data/SEAD_Dataset/patient_subsets/real_pseudobulk_merged/real_RNA_merged_pseudobulk.txt"
-REAL_ATAC="/data/users/vmuller/0_master_thesis/data/SEAD_Dataset/patient_subsets/real_pseudobulk_merged/real_ATAC_merged_pseudobulk.txt"
+#Define the paths to the real and simulated pseudobulk data
+REAL_RNA="$PATH_DONOR_SUBSETS/real_pseudobulk_merged/real_RNA_merged_pseudobulk.txt"
+REAL_ATAC="$PATH_DONOR_SUBSETS/real_pseudobulk_merged/real_ATAC_merged_pseudobulk.txt"
+SIM_RNA="$PATH_DONOR_SUBSETS/simulated_pseudobulk_merged/RNA_merged_pseudobulk.txt"
+SIM_ATAC="$PATH_DONOR_SUBSETS/simulated_pseudobulk_merged/ATAC_merged_pseudobulk.txt"
 
-
-SIM_RNA="/data/users/vmuller/0_master_thesis/data/SEAD_Dataset/patient_subsets/simulated_pseudobulk_merged/RNA_merged_pseudobulk.txt"
-SIM_ATAC="/data/users/vmuller/0_master_thesis/data/SEAD_Dataset/patient_subsets/simulated_pseudobulk_merged/ATAC_merged_pseudobulk.txt"
-
-OUTPUT="/data/users/vmuller/0_master_thesis/data/SEAD_Dataset/patient_subsets/PCA"
-
+# Define the output directory for the PCA results
+OUTPUT="$PATH_DONOR_SUBSETS/PCA"
 mkdir -p "$OUTPUT"
 
+# Run the R script to perform PCA analysis comparing real and simulated data
 Rscript "$PATH_SCRIPTS/10_QC_PCA_analysis.R" \
     --realRNA "$REAL_RNA" \
     --simRNA "$SIM_RNA" \
@@ -32,4 +32,5 @@ Rscript "$PATH_SCRIPTS/10_QC_PCA_analysis.R" \
     --simATAC "$SIM_ATAC" \
     --outdir "$OUTPUT"
 
+echo "Finished"
 echo $(date)
