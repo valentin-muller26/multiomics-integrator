@@ -39,6 +39,7 @@ PACKAGES=(
     r-rfast
     r-scales
     r-ggrastr
+    r-argparse
     bioconductor-cellmixs
     bioconductor-zellkonverter
     bioconductor-singlecellexperiment
