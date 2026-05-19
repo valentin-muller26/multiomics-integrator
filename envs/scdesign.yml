@@ -182,6 +182,7 @@ dependencies:
   - qt6-main=6.9.1=h6ac528c_2
   - r-abind=1.4_5=r43hc72bb7e_1006
   - r-anndata=0.7.5.6=r43hdfd78af_0
+  - r-argparse=2.2.5=r43hc72bb7e_0
   - r-ashr=2.2_63=r43h93ab643_2
   - r-askpass=1.2.1=r43h2b5f3a1_0
   - r-assertthat=0.2.1=r43hc72bb7e_5
@@ -225,6 +226,7 @@ dependencies:
   - r-farver=2.1.2=r43ha18555a_1
   - r-fastmap=1.2.0=r43ha18555a_1
   - r-filelock=1.0.3=r43hb1dbf0f_1
+  - r-findpython=1.0.9=r43hc72bb7e_0
   - r-fnn=1.1.4.1=r43h3697838_1
   - r-fontawesome=0.5.3=r43hc72bb7e_0
   - r-formatr=1.14=r43hc72bb7e_2
