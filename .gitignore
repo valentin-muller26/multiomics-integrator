@@ -4,3 +4,4 @@ logs/
 *.log
 *.log.*
 src/*/*.pdf
+data_old/
