@@ -4,7 +4,8 @@ export LOGDIR=$WORKDIR/log
 export CONDA_ENV=multiomic_analysis
 export PATH_DATA=$WORKDIR/data/data_interleukines
 export PATH_SCRIPTS=$WORKDIR/src/MultiOmic_analysis
-
+export OUTPUT_MODEL="$PATH_DATA/mofa_model"
+export OUTPUT_GRAPH="$PATH_DATA/mofa_graph"
 #Create the directory for the error and output file if not present
 mkdir -p $LOGDIR
 

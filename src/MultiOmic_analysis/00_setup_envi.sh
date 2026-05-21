@@ -21,21 +21,55 @@ source ~/miniforge3/etc/profile.d/mamba.sh
 PACKAGES=(
     r-base=4.3
     r-optparse
+    r-argparse
     r-dplyr
+    r-purrr
+    r-stringr
+    r-reshape2
+    r-tidyr
     r-yaml
     r-readr
+    r-data.table
+    r-ggplot2
+    r-ggrepel
+    r-pheatmap
+    r-rcolorbrewer
+    r-cowplot
+    r-psych
+    r-mass
+    r-matrixstats
+    r-openxlsx
+    r-ggpubr
     bioconductor-rtracklayer
     bioconductor-biostrings
     bioconductor-summarizedexperiment
     bioconductor-genomeinfodb
     bioconductor-genomicranges
-    bioconductor-edger
     bioconductor-bsgenome
     bioconductor-bsgenome.hsapiens.ucsc.hg38
-    bioconductor-mixomics
     bioconductor-deseq2
+    bioconductor-edger
+    bioconductor-limma
+    bioconductor-mofa2
+    bioconductor-mixomics
+    bioconductor-mofadata
+    bioconductor-org.hs.eg.db
+    bioconductor-annotationdbi
+    bioconductor-biomart
+    bioconductor-clusterprofiler
+    bioconductor-txdb.hsapiens.ucsc.hg38.knowngene
+    r-msigdbr 
+    bioconductor-fgsea
+    bioconductor-reactomepa
+    bioconductor-chipseeker
     python=3.10
     pip
+    numpy
+    scipy
+    pandas
+    h5py
+    scikit-learn
+    mofapy2
 )
 
 # 1. Create environment if absent, otherwise install/update missing packages
