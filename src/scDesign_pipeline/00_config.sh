@@ -5,7 +5,7 @@ export CONDA_ENV=scdesign
 #Define the variables for the main directories 
 export WORKDIR=/data/users/vmuller/0_master_thesis
 export LOGDIR=$WORKDIR/log
-export PATH_DATA=$WORKDIR/data/SEAD_Dataset/
+export PATH_DATA=$WORKDIR/data/SEAD_Dataset
 export PATH_DONOR_SUBSETS=$WORKDIR/data/SEAD_Dataset/patient_subsets
 export PATH_SCRIPTS=$WORKDIR/src/scDesign_pipeline
 
