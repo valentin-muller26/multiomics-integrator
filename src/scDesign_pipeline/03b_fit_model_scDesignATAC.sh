@@ -8,7 +8,6 @@
 #SBATCH --partition=pibu_el8
 #SBATCH --array=0-3
 
-set -euo pipefail
  
 echo $(date)
 

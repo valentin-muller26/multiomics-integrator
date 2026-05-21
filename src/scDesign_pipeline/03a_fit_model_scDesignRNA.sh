@@ -7,8 +7,8 @@
 #SBATCH --error=/data/users/vmuller/0_master_thesis/log/fit_scDesignRNA_%A_%a.err
 #SBATCH --partition=pibu_el8
 #SBATCH --array=0-3
-set -euo pipefail
- 
+
+
 echo $(date)
 
 # Load the configuration and activate the conda environment
