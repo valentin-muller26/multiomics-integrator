@@ -13,6 +13,17 @@ The repository is divided into three independent pipelines:
 
 ## Structure of the repository 
 
+```
+├── data            # Directory containing the datasets and the result of the different pipeline
+├── envs            # Conda/mamba environment files (.yml)
+├── log             # SLURM job logs, consisting of .err files containing errors and .out files containing the output of the jobs
+├── README.md
+└── src             # Directory containing the code of the three pipelines
+    ├── scDesign_pipeline/
+    ├── Mosim_pipeline/
+    └── MultiOmic_analysis/
+```
+
 
 ## Installation
 For reproducibility, the exact versions of all R and Python dependencies are listed in separate `.yml` files (one per pipeline, with the exception of the `scDesign3` pipeline, which also requires the `cell_type_mapper` environment for the validation step).
