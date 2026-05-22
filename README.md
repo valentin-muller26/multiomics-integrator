@@ -5,12 +5,12 @@ This repository consists of the code and configuration for three pipelines devel
 
 The repository is divided into three independent pipelines: 
 
-1. **Single-cell dataset simulation** : In this pipeline, the `SEA-AD MTG Multiome` dataset was used as a proof-of-concept dataset to evaluate the feasibility of simulating paired single-cell RNA-seq and ATAC-seq data with `scDesign3` and consists of the following steps : downloading, preprocessing and quality control of the SEA-AD MTG Multiome dataset, simulation with `scDesign3`, and validation of the simulated counts. More details about the pipeline can be found [here](src/scDesign_pipeline/README.md)
+1. **Single-cell dataset simulation** : In this pipeline, the `SEA-AD MTG Multiome` dataset was used as a proof-of-concept dataset to evaluate the feasibility of simulating paired single-cell RNA-seq and ATAC-seq data with `scDesign3` and consists of the following steps : downloading, preprocessing and quality control of the SEA-AD MTG Multiome dataset, simulation with `scDesign3`, and validation of the simulated counts. More details about the pipeline can be found in the  [pipeline README](src/scDesign_pipeline/README.md).
 
-2. **Simulation of the bulk RNA-seq and ATAC-seq data from healthy donors dataset** : Preprocessing of the bulk RNA-seq and ATAC-seq from healthy donors in the context of atopic dermatitis, simulation with `MOSim`, and validation with `countsimQC`. More details about the pipeline can be found [here](src/Mosim_pipeline/README.md)
+2. **Simulation of the bulk RNA-seq and ATAC-seq data from healthy donors dataset** : Preprocessing of the bulk RNA-seq and ATAC-seq from healthy donors in the context of atopic dermatitis, simulation with `MOSim`, and validation with `countsimQC`. More details about the pipeline can be found in the [pipeline README](src/Mosim_pipeline/README.md).
 
 
-3. **Multi-omics analysis of the bulk RNA-seq and ATAC-seq data from healthy donors dataset** :  Preprocessing of the bulk RNA-seq and ATAC-seq from healthy donors, training and downstream analysis of  unsupervised `MOFA2` models, and training of the supervised model `DIABLO` (mixOmics).  More details about the pipeline can be found [here](src/MultiOmic_analysis/README.md)
+3. **Multi-omics analysis of the bulk RNA-seq and ATAC-seq data from healthy donors dataset** :  Preprocessing of the bulk RNA-seq and ATAC-seq from healthy donors, training and downstream analysis of  unsupervised `MOFA2` models, and training of the supervised model `DIABLO` (mixOmics).  More details about the pipeline can be found in the [pipeline README](src/MultiOmic_analysis/README.md).
 
 ## Structure of the repository 
 
