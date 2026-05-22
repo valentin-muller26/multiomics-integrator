@@ -18,17 +18,24 @@ The repository is divided into three independent pipelines:
 For reproducibility, the exact versions of all R and Python dependencies are listed in separate `.yml` files (one per pipeline, with the exception of the `scDesign3` pipeline, which also requires the `cell_type_mapper` environment for the validation step).
 
 Example of setting up an environment :
-​```bash
-# Clone the repository
+​
+**Clone the repository**
+```bash
 git clone <repo-url>
 cd <repo-name>
+```
 
-# Create the environment (mamba is faster than conda)
+**Create the environment**
+
+```bash
 mamba env create -f envs/<environment>.yml
+```
 
-# Activate it
-conda activate <environment>
-​```
+**Activate the environment**
+
+```bash
+mamba activate <environment>
+```
 
 ### Requirements
 - Linux operating system
@@ -46,7 +53,9 @@ Each pipeline consists of a sequence of jobs. Each job is a bash script (`.sh`) 
 Example of submitting job :
 ​```bash
 cd src/<pipeline>
+
 sbatch 01_<name>.sh
+
 sbatch 02_<name>.sh
 ...
 ​```
