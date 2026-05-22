@@ -4,6 +4,7 @@ This repository consists of the  Code and configuration for three pipelines deve
 ## Repository overview
 
 The repository is divided in three independant pipeline : 
+
 1.**Single-cell dataset simulation** : in this pipeline, the `SEA-AD MTG Multiome` dataset was used as a proof-of-concept dataset to evaluate the feasibility of simulating paired single-cell RNA-seq and ATAC-seq data with scDesign3 and consiss of the following step : downloading, preprocessing and quality control of the SEA-AD MTG Multiome dataset, simulation with `scDesign3`, and validation of the simulated counts.
 2. **Simulation of the bulk RNA-seq and ATAC-seq data from healthy donors dataset** : Preprocessing of the bulk RNA-seq and ATAC-seq from healthy donors in the context of atopic dermatitis, simulation with `MOSim`, and validation with `countsimQC`. 
 3. **Multi-omics analysis of the bulk RNA-seq and ATAC-seq data from healthy donors dataset** :  Preprocessing of the bulk RNA-seq and ATAC-seq from healthy donors, training and downstream analysis of  unsupervised `MOFA2` models, and training of the supervised model `DIABLO` (mixOmics).
