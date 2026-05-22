@@ -27,9 +27,9 @@ This step uses the scripts :
 
 **Input required**
 The R script required the following input 
-- donor_ID : prefix of the donor in the format ("DA16)
+- donor_ID : prefix of the donor in the format (e.g. DA16)
 - inputdir : path to the folder containing the RNA-seq and ATAC-seq data extracted in the step 1
-- outdir : path to the output directory where the results of the pipeline will be saved
+- outdir : path to the output directory where the results of the simulation will be saved
 
 **Output generated**
 
@@ -40,7 +40,20 @@ The MOSim simulation generates the following outputs in the `simulated_data/` fo
   - one for RNA-seq, containing all simulated replicates,
   - one for ATAC-seq, containing all simulated replicates.
 
-## Step 3 : Validation of the simulated data
+## Step 3: Validation of the simulated data
+
+This step uses the scripts `03_validation.sh` and `03_validation_mosim.R` to run `countsimQC`, which compares one simulated replicate against the corresponding real data.
+
+**Required inputs**
+
+- `donor_ID`: prefix of the donor (e.g. `HC16`).
+- `inputdir`: path to the results generated in the simulation step.
+- `outdir`: path to the output directory where the `countsimQC` reports will be saved.
+- `replicate` *(optional, default: 1)*: index of the simulated replicate to compare against the real data of the corresponding donor.
+
+**Outputs**
+
+`countsimQC` generates two HTML reports:  one per omics modality (RNA-seq and ATAC-seq) saved in the `validation_results/` folder.
 
 
 ## (optional) Step 4 : Sanity check to compare the distribution of two different donor real data
