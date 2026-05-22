@@ -49,16 +49,15 @@ mamba activate <environment>
 All three pipelines were created to run on an HPC cluster using SLURM.
 Each pipeline consists of a sequence of jobs. Each job is a bash script (`.sh`) that runs the corresponding Python or R script with the appropriate input parameters, and must be submitted in the order indicated by its numerical prefix.
 
-
 Example of submitting job :
-​```bash
+
+```bash
+
 cd src/<pipeline>
-
 sbatch 01_<name>.sh
-
 sbatch 02_<name>.sh
 ...
-​```
+```
 
 ## Author
 Valentin Müller
