@@ -1,4 +1,4 @@
-# Mosim pipeline
+# MOSim pipeline
 
 ## Pipeline overview and goals
 
@@ -19,6 +19,26 @@ This step uses the script `01_data_extraction.sh`, which performs the following 
 4. Extract the consensus feature count for the combined ATAC-seq of donors HC16–HC19 and place it in `data_interleukine/ATAC_consensus/`.
 
 ## Step 2 : Simulation using MOsim
+
+This step uses the scripts :
+1. `02_simulation_mosim.sh` used for slurm to run the job and give the parameter to the R script `02_run_mosim.R`.
+2. `02_run_mosim.R` :  script containing the pipeline step for the simulation of MOSim.
+3. `mosim_functions.R` : script containing the different function used in the MOSim pipeline
+
+**Input required**
+The R script required the following input 
+- donor_ID : prefix of the donor in the format ("DA16)
+- inputdir : path to the folder containing the RNA-seq and ATAC-seq data extracted in the step 1
+- outdir : path to the output directory where the results of the pipeline will be saved
+
+**Output generated**
+
+The MOSim simulation generates the following outputs in the `simulated_data/` folder:
+
+- **`real/`**: real feature counts for the RNA-seq and ATAC-seq modalities (one file per donor and per modality), saved after the preprocessing step performed at the beginning of the simulation.
+- **`merged/`**: simulated feature counts. For each donor, two files are produced:
+  - one for RNA-seq, containing all simulated replicates,
+  - one for ATAC-seq, containing all simulated replicates.
 
 ## Step 3 : Validation of the simulated data
 
