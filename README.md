@@ -1,5 +1,5 @@
 # MultiOmic analysis
-This repository consists of the code and configuration for three pipelines developed as part of a Master's thesis in Bioinformatics and Computational Biology (Universities of Fribourg & Berne) on the multi-omics integration of bulk RNA-seq and ATAC-seq data from healthy donors in the context of atopic dermatitis.
+This repository consists of the code and configuration for three pipelines developed as part of a Master's thesis in Bioinformatics and Computational Biology (Universities of Fribourg & Bern) on the multi-omics integration of bulk RNA-seq and ATAC-seq data from healthy donors in the context of atopic dermatitis.
 
 ## Repository overview
 
