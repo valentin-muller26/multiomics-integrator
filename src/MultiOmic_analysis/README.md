@@ -20,6 +20,9 @@ The local version consists of two helper files and two scripts corresponding to 
 
 To run this pipeline, download the MOFA_local/ folder along with the RNA-seq dataset and the ATAC-seq consensus calls. Rename them to RNAseq.txt and ATACseq.txt respectively, and place them in a data/ folder inside the folder containing the scripts.
 
+### Diablo pipeline
+- `Diablo.R` : script containing the preprocessing of the RNA-seq and ATAC-seq dataset and the first part of the DIABLO model training (selection of the number of components). This pipeline was not developped further due to a high error rate observed during the initial training step.
+
 # Cluster version 
 
 In addition to the adapted R scripts from the local version, the cluster version provides bash scripts to run the different steps of the MOFA pipeline, along with the following configuration and setup scripts:
