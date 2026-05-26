@@ -37,7 +37,19 @@ Inputs:
 ## Step 4 : Simulating synthetic data 
 
 ## Step 5 : Validation using MapMycells
+This step is the first validation performed at the cell-type level for the RNA-seq modelity. Its goal is to test whether the simulation preserves the cell-type-specific biological signal of the real data for example  whether a simulated cell originally derived from an oligodendrocyte still gets identified as an oligodendrocyte after simulation. To do so, we use MapMyCells, an annotation tool developed by the Allen Institute (the same group that produced the SEA-AD dataset) and specifically tuned to annotate cell types present in this reference atlas. This validation is performed by the following scripts:
+1. 05a_download_mapmycell.sh : creates a dedicated Python 3.10 virtual environment, installs the required dependencies, clones and installs the MapMyCells tool from the [official github repository](https://github.com/AllenInstitute/cell_type_mapper.git) and downloads the precomputed reference statistics needed for the hierarchical mapping annotation algorithm.
+2. 05b_run_mapmycells_allADNCgroup.sh : Script that orchestrate the runs of the  MapMyCells sequentially on the four ADNC groups (Not AD, Low, Intermediate, High). Due to the large number of files, each group is submitted as an independent SLURM job via 05b_run_mapmycell.sh (script for the pipeline of one group)  with --dependency=afterok chaining each job to the successful completion of the previous one. Once all job is completed a small supplementary SLURM job is launch to remove the temporary files.
 
+  2.1 05b_run_mapmycell.sh : script that orchestrates the full MapMyCells annotation workflow for a given ADNC group. It performs the following operations:
+- Lists all the simulated .h5ad files for the RNA-seq modality belonging to the target ADNC group.
+- Converts gene symbols to Ensembl IDs. MapMyCells requires gene identifiers in Ensembl format, which are not stored in the simulated .h5ad files. For each simulated file, gene names are converted using the mygene library through the  script `05b_mapmycell_convert_genename_to_ENS.py`. Genes with no mapping are discarded, and genes with multiple mappings keeps only the first hit. The converted .h5ad files are written to a temporary directory.
+- Runs MapMyCells on each converted file against the precomputed SEA-AD reference statistics, producing one .csv (cell-level annotations) and one .json (run metadata) file per input.
+- Analyzes the annotation results via `05b_analysis_mapmycells.py`, which generates:
+  - .csv reporting the overall percentage of correctly classified cells,
+  - .csv reporting the per-cell-type classification accuracy,
+  - two confusion matrices, one expressed in percentages of correct classification and the other in raw cell counts.
+   
 ## Step 6 : Statistical validation using the official validation script of scDesign3
 
 ## Step 7 : Generating pseudobulk
