@@ -1,8 +1,8 @@
 # MOSim pipeline
 
 ## Pipeline overview and goals
-
-
+This pipeline generates synthetic bulk RNA-seq and ATAC-seq count matrices from real seed data using MOSim, with the goal of using these synthetic samples as data augmentation for downstream models tasked with identifying discriminant genes and chromatin peaks across Interleukine and Interferon treatments.
+A validation step is included to assess whether the simulated data remain sufficiently close to the real data to serve as a valid augmentation for the downstream model. Validation is performed with countsimQC, which compares simulated and real counts across a range of distributional diagnostics (mean–variance relationship, dispersion, library size, fraction of zeros, sample–sample correlations). Additionally, an optional real vs real comparison between two donors is provided to obtain a baseline of the natural inter-donor variability against which the simulated-vs-real deviation can be benchmarked.
 
 ## Step 0 : environment configuration
 This step consists of two scripts:
