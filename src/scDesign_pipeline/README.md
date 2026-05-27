@@ -65,6 +65,24 @@ At the modality level (models/RNA/ and models/ATAC/):
 
 ## Step 4 : Simulating synthetic data 
 
+This step uses the models fitted in the previous step to generate synthetic single-cell count matrices. It relies on four scripts (two per modality: one bash scripts that reads the general manifest.csv to launch a SLURM job array, one job per ADNC group, allowing the four groups to run in parallel and one R script performing the actual simulation).
+For each replicate, the simulation R script reads the model_manifest.tsv of the target ADNC group and iterates over all the per-batch fitted models. Each batch is simulated independently with a different and  unique seed per replicate. The parameters are extracted from the fitted scDesign3 object and new counts are drawn from the same marginal distribution family used during the fitting step, combined with the corresponding copula model. For RNA-seq, the distribution family is fixed to negative binomial (`nb`); for ATAC-seq, negative binomial is the default but can be changed using `family_use` option during the fitting step. If this parameter was changed, the same family must be passed to the simulation script via the corresponding option to remain consistent. Once all batches of the replicate are simulated, the resulting count matrices are merged on their common features, enriched with cell-level metadata (cell type, donor ID, replicate index, seed, ADNC group, and a synthetic = TRUE flag), and exported as a single .h5ad file in the simulated_data/ directory.
+
+If a simulation job fails midway, it can be resumed by passing the index of the replicate where it failed via the `--start_replicate_count` option, and adjusting `--n_rep` to the number of replicates left to generate. This shifts both the replicate numbering and the random seed, ensuring that resumed replicates do not overwrite the ones already produced and remain reproducible.
+
+Inputs option:
+
+- modeldir : path to the directory containing model_manifest.tsv and the per-batch .rds files of the target ADNC group (produced in Step 3).
+- outdir : output directory where the simulated .h5ad replicates will be written.
+- ADNC_cat :  name of the ADNC category being simulated (Not AD, Low, Intermediate, High). Used as the filename prefix and stored in the obs metadata of every simulated cell.
+- n_rep : number of replicates to generate (default: 10).
+- start_replicate_count : starting index for replicate numbering and seeding. Set to a value > 1 to resume an interrupted run (default: 1).
+- *(Only for ATACseq script)* family : Distribution family for the marginal model: nb, zinb, or zip (default: 'nb')  Must match the family used at fitting time.
+
+Outputs (saved in `simulated_data/<modality>/<ADNC_cat>/`):
+
+- `<ADNC_cat>_rep<NN>_seed<S>_scDesign3.h5ad`:  one file per replicate, containing the merged synthetic count matrix (cells x features) and the associated obs metadata (cell_type, donor_id, replicate, seed, ADNC_cat, synthetic)
+
 ## Step 5 : Validation using MapMycells
 This step is the first validation performed at the cell-type level for the RNA-seq modelity. Its goal is to test whether the simulation preserves the cell-type-specific biological signal of the real data for example  whether a simulated cell originally derived from an oligodendrocyte still gets identified as an oligodendrocyte after simulation. To do so, we use MapMyCells, an annotation tool developed by the Allen Institute (the same group that produced the SEA-AD dataset) and specifically tuned to annotate cell types present in this reference atlas. This validation is performed by the following scripts:
 1. 05a_download_mapmycell.sh : creates a dedicated Python 3.10 virtual environment, installs the required dependencies, clones and installs the MapMyCells tool from the [official github repository](https://github.com/AllenInstitute/cell_type_mapper.git) and downloads the precomputed reference statistics needed for the hierarchical mapping annotation algorithm.
