@@ -36,8 +36,32 @@ Inputs :
 - Output directory were the merged .h5ad will be saved
 - *(Optional)* A boolean passed to the Python script to force balanced regrouping by limiting each group to the size of the smallest number of donor of the non-empty group.
 
-## Step 3 : Fitting the scDesign model
+## Step 3 : Fitting the scDesign3 model
+This step relies on four scripts (two per modality: one bash wrapper for SLURM submission and one R script performing the actual fitting) that fit a scDesign3 model on each ADNC-group seed file generated in the previous step and save the resulting model as an `.rds` file. The fitted models are then reused in the next step to generate the synthetic data; splitting the fitting and the simulation into two separate steps allows the model to be fitted once and reused across multiple simulation runs, avoiding the costly refit each time a new batch of synthetic data is needed.
+Due to scDesign3 using high amount of memory and being time intensive when fitting the full dataset at once, three strategie was implemented to reduce these ressource consumption:
+1. Cell-type batching. Cell types are split into batches and the model is fitted batch by batch. The number of batches is user-defined, with defaults of 5 for RNA-seq and 4 for ATAC-seq. 
+2. Cell subsampling per cell type. Within each batch, each cell type is subsampled to a maximum of N cells (user-defined, default 20) before fitting.
+3. Feature pre-filtering. Only the most variable features are retained, defined as those above a user-defined quantile of variance. Defaults: top 95% for RNA-seq and top 10% for ATAC-seq.
 
+Input option of the model fitting :
+- rnafile Path to the input h5ad RNA-seq file for the ADNC group
+- outdir Output directory to save the fitted models (.rds files)
+- batch_size Number of cell types to include in each batch (default: 5)
+- cells_per_type Number of cells to sample per cell type (default: 20)
+- seed Random seed for reproducibility (default: 42)
+- var_quantile Quantile for variance filtering
+- *(Only for ATACseq script)* family_use Marginal distribution family ("nb", "zinb", or "zip")
+
+
+
+Outputs (saved in the `models/` directory, organized by modality and ADNC group) :Inside each ADNC-group subfolder (models/{RNA,ATAC}/<ADNC_group>/):
+- <batch>.rds _ fitted scDesign3 model for a given cell-type batch.
+- model_manifest.tsv : file listing all the model batches for the ADNC group along with the path to each `.rds` file. This file used in the simulation step to load the correct batch for the target group.
+- training_cells.h5ad : count matrix of the ADNC group after feature pre-filtering, kept for the validation step.
+- genes_kept.rds (RNA) / peaks_kept.rds (ATAC) : list of features retained after the variance-based filtering. Used either for downstream inspection or to reapply the same feature selection to the raw .h5ad if training_cells.h5ad is lost.
+
+At the modality level (models/RNA/ and models/ATAC/):
+- manifest.csv : general manifest listing the ADNC groups for which all batches have been successfully fitted. Used by the simulation step to build the SLURM job array.
 
 ## Step 4 : Simulating synthetic data 
 
