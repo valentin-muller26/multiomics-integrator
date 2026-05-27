@@ -44,24 +44,24 @@ Due to scDesign3 using high amount of memory and being time intensive when fitti
 3. Feature pre-filtering. Only the most variable features are retained, defined as those above a user-defined quantile of variance. Defaults: top 95% for RNA-seq and top 10% for ATAC-seq.
 
 Input option of the model fitting :
-- rnafile Path to the input h5ad RNA-seq file for the ADNC group
-- outdir Output directory to save the fitted models (.rds files)
-- batch_size Number of cell types to include in each batch (default: 5)
-- cells_per_type Number of cells to sample per cell type (default: 20)
-- seed Random seed for reproducibility (default: 42)
-- var_quantile Quantile for variance filtering
+- `rnafile` Path to the input h5ad RNA-seq file for the ADNC group
+- `outdir` Output directory to save the fitted models (.rds files)
+- `batch_size` Number of cell types to include in each batch (default: 5)
+- `cells_per_type` Number of cells to sample per cell type (default: 20)
+- `seed` Random seed for reproducibility (default: 42)
+- `var_quantile` Quantile for variance filtering
 - *(Only for ATACseq script)* family_use Marginal distribution family ("nb", "zinb", or "zip")
 
 
 
 Outputs (saved in the `models/` directory, organized by modality and ADNC group) :Inside each ADNC-group subfolder (models/{RNA,ATAC}/<ADNC_group>/):
-- <batch>.rds _ fitted scDesign3 model for a given cell-type batch.
-- model_manifest.tsv : file listing all the model batches for the ADNC group along with the path to each `.rds` file. This file used in the simulation step to load the correct batch for the target group.
-- training_cells.h5ad : count matrix of the ADNC group after feature pre-filtering, kept for the validation step.
-- genes_kept.rds (RNA) / peaks_kept.rds (ATAC) : list of features retained after the variance-based filtering. Used either for downstream inspection or to reapply the same feature selection to the raw .h5ad if training_cells.h5ad is lost.
+- `<batch>.rds` : fitted scDesign3 model for a given cell-type batch.
+- `model_manifest.tsv` : file listing all the model batches for the ADNC group along with the path to each `.rds` file. This file used in the simulation step to load the correct batch for the target group.
+- `training_cells.h5ad` : count matrix of the ADNC group after feature pre-filtering, kept for the validation step.
+- `genes_kept.rds` (RNA) / `peaks_kept.rds` (ATAC) : list of features retained after the variance-based filtering. Used either for downstream inspection or to reapply the same feature selection to the raw .h5ad if training_cells.h5ad is lost.
 
 At the modality level (models/RNA/ and models/ATAC/):
-- manifest.csv : general manifest listing the ADNC groups for which all batches have been successfully fitted. Used by the simulation step to build the SLURM job array.
+- `manifest.csv` : general manifest listing the ADNC groups for which all batches have been successfully fitted. Used by the simulation step to build the SLURM job array.
 
 ## Step 4 : Simulating synthetic data 
 
