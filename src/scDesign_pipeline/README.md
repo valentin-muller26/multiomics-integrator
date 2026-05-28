@@ -1,7 +1,9 @@
-# scDesign pipeline
+# scDesign3 pipeline
 
 ## Pipeline overview and goals
 
+In this pipeline, the SEA-AD MTG Multiome dataset was used as a proof-of-concept to evaluate the feasibility of simulating paired single-cell RNA-seq and ATAC-seq data with scDesign3 and generating pseudobulk profiles as a substitute for a real bulk dataset. The dataset consists of two files, one for the RNA-seq data and one for the ATAC-seq data. It includes 84 individuals profiled with independent (unpaired) omics, of which 28 donors spanning the full disease spectrum were profiled with the 10x Genomics Chromium Single Cell Multiome ATAC + Gene Expression kit. For this analysis, only these 28 donors were retained, ensuring paired single-cell RNA-seq and ATAC-seq data for the scDesign3 simulation.
+The scDesign3 simulation pipeline consists of the following steps: downloading the official dataset from the AWS S3 repository; preprocessing and quality control of the SEA-AD MTG Multiome dataset; model fitting and simulation with scDesign3; and three types of validation—two performed at the cell-type level and the last performed after aggregating single cells into pseudobulk.
 
 ## Step 0 : environment configuration
 This step consists of two scripts:
@@ -84,6 +86,7 @@ Outputs (saved in `simulated_data/<modality>/<ADNC_cat>/`):
 - `<ADNC_cat>_rep<NN>_seed<S>_scDesign3.h5ad`:  one file per replicate, containing the merged synthetic count matrix (cells x features) and the associated obs metadata (cell_type, donor_id, replicate, seed, ADNC_cat, synthetic)
 
 ## Step 5 : Validation using MapMycells
+
 This step is the first validation performed at the cell-type level for the RNA-seq modelity. Its goal is to test whether the simulation preserves the cell-type-specific biological signal of the real data for example  whether a simulated cell originally derived from an oligodendrocyte still gets identified as an oligodendrocyte after simulation. To do so, we use MapMyCells, an annotation tool developed by the Allen Institute (the same group that produced the SEA-AD dataset) and specifically tuned to annotate cell types present in this reference atlas. This validation is performed by the following scripts:
 1. 05a_download_mapmycell.sh : creates a dedicated Python 3.10 virtual environment, installs the required dependencies, clones and installs the MapMyCells tool from the [official github repository](https://github.com/AllenInstitute/cell_type_mapper.git) and downloads the precomputed reference statistics needed for the hierarchical mapping annotation algorithm.
 2. 05b_run_mapmycells_allADNCgroup.sh : Script that orchestrate the runs of the  MapMyCells sequentially on the four ADNC groups (Not AD, Low, Intermediate, High). Due to the large number of files, each group is submitted as an independent SLURM job via 05b_run_mapmycell.sh (script for the pipeline of one group)  with --dependency=afterok chaining each job to the successful completion of the previous one. Once all job is completed a small supplementary SLURM job is launch to remove the temporary files.
@@ -98,6 +101,18 @@ This step is the first validation performed at the cell-type level for the RNA-s
   - two confusion matrices, one expressed in percentages of correct classification and the other in raw cell counts.
    
 ## Step 6 : Statistical validation using the official validation script of scDesign3
+
+This step is the second validation at the cell-type level, using the official validation script provided by the authors of scDesign3. Because this step is highly demanding in both memory and time, only five replicates per group and omics are evaluated. It assesses the statistical distributions of the real and simulated data, producing eight violin plots for the following eight summary statistics and comparing the distributions between the real and simulated data at four levels: feature level, cell level, feature-pair level, and cell-pair level:
+
+- At the feature level, the mean log expression, the variance of the log expression using log(count + 1) values, and the feature detection frequency, corresponding to the proportion of non-zero counts of a feature across all cells, were computed and visualised as violin plots.
+- At the cell level, the cell’s proportion of nonzero across all features, representing the Cell detection frequency, and the cell library (total read/UMI count) size on a log transformed scale were computed and were computed and visualised as violin plots.
+- At the feature-pair level, the Pearson correlation between each pair of features was computed from the log (count + 1) values across all cells. The resulting distribution of all pairwise correlation values was visualised as a violin plot. In addition, a feature-feature correlation heatmap was generated using the top 100 most expressed features, ordered by hierarchical clustering. The Pearson correlation coefficient r between the real and simulated correlation matrices was computed to quantify the similarity of the correlation structure.
+- At the cell-pair level, the cell-cell distance was computed using the Euclidean distance between two cells in the 50-dimensional principal component space of the principal component analysis (constructed from the cell-by-gene log(count+1) matrix). Additionally, the correlation between two cell’s log(count+1) values across all features was computed.
+For each of these eight statistics, a Kolmogorov-Smirnov (KS) test was performed to quantitatively compare the distributions between the real and simulated data, with a lower KS statistic indicating a better agreement between the two distributions.
+
+Beyond the distribution-level statistics described above, the global structure and similarities of the real and simulated data was assessed by projecting both onto a common PCA and UMAP.  To measure the degree of mixing between the real and simulated cell, the mean local inverse Simpson’s index (mLISI) was computed via the function evalIntegration() of the CellMixS package. The LISI values range between 1 if a cell’s neighbouring cells are exclusively from one group either real cells or synthetic cells and 2 is they are comprising of the two groups equally. Therefore, a mLISI close to 2 indicates that the synthetic cells and the real cells are well mixed.
+
+
 
 ## Step 7 : Generating pseudobulk
 The pseudobulk generation step consist of two script to generate the pseudobulk for the synthethic data and two script to generate the pseudobulk for the real data subset used during the training of the model 
