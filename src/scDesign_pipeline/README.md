@@ -54,6 +54,9 @@ Input option of the model fitting :
 - `var_quantile` Quantile for variance filtering
 - *(Only for ATACseq script)* family_use Marginal distribution family ("nb", "zinb", or "zip")
 
+Warning :
+- During pipeline development, fitting the model with multicore was attempted but consistently resulted in job failure. Single-core execution is therefore recommended.
+- Another issue arises with the "zinb" and "zip" distribution families, which require substantial RAM and runtime. During testing with 300 GB of RAM, fitting of the first of 5 batches did not complete after 2 days. We therefore discourage the use of these marginal distribution families.
 
 
 Outputs (saved in the `models/` directory, organized by modality and ADNC group) :Inside each ADNC-group subfolder (models/{RNA,ATAC}/<ADNC_group>/):
@@ -84,6 +87,9 @@ Inputs option:
 Outputs (saved in `simulated_data/<modality>/<ADNC_cat>/`):
 
 - `<ADNC_cat>_rep<NN>_seed<S>_scDesign3.h5ad`:  one file per replicate, containing the merged synthetic count matrix (cells x features) and the associated obs metadata (cell_type, donor_id, replicate, seed, ADNC_cat, synthetic)
+
+Warning :
+- This part of the pipeline is slow: 50 replicates take approximately 4 days and require a high amount of RAM.
 
 ## Step 5 : Validation using MapMycells
 
