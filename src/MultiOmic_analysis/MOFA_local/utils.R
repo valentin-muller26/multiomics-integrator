@@ -1,4 +1,4 @@
-library(ggplot2) meme chose12:30rcran_pkgs <- c(
+cran_pkgs <- c(
   "purrr", "reshape2", "dplyr", "stringr", "psych", "ggplot2"
 )
 
@@ -81,6 +81,21 @@ preprocess_atac <- function(atac_data, donors){
     colnames(atac_data) <- gsub(pattern, replacement, colnames(atac_data))
   }
   
+  #Change the inverted samples
+  hc19_map <- c(
+    "HC19NoStim"    = "HC19IL413IFN",
+    "HC19IL4"       = "HC19IL4IL13", 
+    "HC19IL13"      = "HC19IL13IFNg",
+    "HC19IFNg"      = "HC19IL4IFNg",
+    "HC19IL4IFNg"   = "HC19IFNg",
+    "HC19IL13IFNg"  = "HC19IL13",
+    "HC19IL4IL13"   = "HC19IL4", 
+    "HC19IL413IFN"  = "HC19NoStim"   
+  )
+  
+  colnames(atac_data) <- dplyr::recode(colnames(atac_data), !!!hc19_map)
+  
+  
   # Use chromosome number _ start _ end as identifier
   atac_data <- atac_data %>%
     mutate(ID = paste0(Chr, "_", Start, "_", End))
@@ -93,7 +108,6 @@ preprocess_atac <- function(atac_data, donors){
   atac_data     <- atac_data[valid_peaks, , drop = FALSE]
   return(atac_data)
 }
-
 
 generate_long_dataframe <- function(dt, omic_name){
   #' Convert a wide omics matrix to MOFA2 long format
