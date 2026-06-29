@@ -48,6 +48,8 @@ merge_real_sim <- function(real_df, sim_df) {
     # Find common features (genes or peaks) between real and simulated data
     common_features <- intersect(rownames(real_df), rownames(sim_df))
     cat("Common features:", length(common_features), "\n")
+    cat("Features in real data:", nrow(real_df), "\n")
+    cat("Features in simulated data:", nrow(sim_df), "\n")
     # Merge real and simulated data, round to integers
     merged <- cbind(real_df[common_features, ], sim_df[common_features, ])
     merged <- round(as.matrix(merged))
@@ -96,9 +98,9 @@ run_pca <- function(merged_matrix, title, out_file) {
 
     p <- ggplot(df_plot, aes(x=PC1, y=PC2, color=ADNC)) +
         geom_point(data=subset(df_plot, origin=="Simulated"),
-                   aes(shape=origin), size=2, alpha=0.5) +
+                   aes(shape=origin), size=2.5, alpha=0.5) +
         geom_point(data=subset(df_plot, origin=="Real"),
-                   aes(shape=origin), size=4, stroke=0.8) +
+                   aes(shape=origin), size=5, stroke=0.8) +
         scale_color_manual(values=c(
             "Not AD"       = "#4C72B0",
             "Low"          = "#55A868",
@@ -106,14 +108,27 @@ run_pca <- function(merged_matrix, title, out_file) {
             "High"         = "#8172B2"
         )) +
         scale_shape_manual(values=c("Real"=16, "Simulated"=17)) +
+        # Bigger legend keys/points so symbols stay readable when the figure is shrunk
+        guides(
+            color = guide_legend(override.aes = list(size = 5)),
+            shape = guide_legend(override.aes = list(size = 5))
+        ) +
         labs(title=title,
              x=sprintf("PC1 (%.1f%%)", var[1]),
              y=sprintf("PC2 (%.1f%%)", var[2])) +
-        theme_bw()
+        theme_bw(base_size = 18) +
+        theme(
+            plot.title   = element_text(size = 22, face = "bold"),
+            axis.title   = element_text(size = 18),
+            axis.text    = element_text(size = 18),
+            legend.title = element_text(size = 20),
+            legend.text  = element_text(size = 18),
+            legend.key.size = unit(1.1, "lines")
+        )
 
     #Save the PCA plot to the output directory
     path_out <- file.path(args$outdir, out_file)
-    ggsave(path_out, p, width=7, height=6, dpi=150)
+    ggsave(path_out, p, width=8, height=6.5, dpi=300)
     cat("Saved:", path_out, "\n")
 }
 
@@ -131,10 +146,10 @@ cat("\n=== RNA ===\n")
 cat("Library sizes real:", "(min:", min(colSums(real_rna)), ", max:", max(colSums(real_rna)), ")\n")
 cat("Library sizes sim:",  "(min:", min(colSums(sim_rna)), ", max:", max(colSums(sim_rna)), ")\n")
 merged_rna  <- merge_real_sim(real_rna, sim_rna)
-run_pca(merged_rna, "PCA — RNA (real vs simulated)", "PCA_RNA.png")
+run_pca(merged_rna, "PCA : RNA (real vs simulated)", "PCA_RNA.png")
 
 cat("\n=== ATAC ===\n")
 cat("Library sizes real:", "(min:", min(colSums(real_atac)), ", max:", max(colSums(real_atac)), ")\n")
 cat("Library sizes sim:",  "(min:", min(colSums(sim_atac)), ", max:", max(colSums(sim_atac)), ")\n")
 merged_atac <- merge_real_sim(real_atac, sim_atac)
-run_pca(merged_atac, "PCA — ATAC (real vs simulated)", "PCA_ATAC.png")
+run_pca(merged_atac, "PCA : ATAC (real vs simulated)", "PCA_ATAC.png")
