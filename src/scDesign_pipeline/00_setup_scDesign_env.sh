@@ -32,11 +32,13 @@ PACKAGES=(
     r-tidyr
     r-reshape2
     r-umap
+    r-signac
     r-tibble
     r-anndata
     r-cowplot
     r-pbmcapply
     r-rfast
+    r-readr
     r-scales
     r-ggrastr
     r-argparse
