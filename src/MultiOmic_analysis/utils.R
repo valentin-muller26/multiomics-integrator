@@ -59,6 +59,22 @@ preprocess_atac <- function(atac_data, donors){
     replacement <- paste0(donors[i], "\\1")
     colnames(atac_data) <- gsub(pattern, replacement, colnames(atac_data))
   }
+
+  #Change the inverted samples
+  hc19_map <- c(
+    "HC19NoStim"    = "HC19IL413IFN",
+    "HC19IL4"       = "HC19IL4IL13", 
+    "HC19IL13"      = "HC19IL13IFNg",
+    "HC19IFNg"      = "HC19IL4IFNg",
+    "HC19IL4IFNg"   = "HC19IFNg",
+    "HC19IL13IFNg"  = "HC19IL13",
+    "HC19IL4IL13"   = "HC19IL4", 
+    "HC19IL413IFN"  = "HC19NoStim"   
+  )
+  
+  colnames(atac_data) <- dplyr::recode(colnames(atac_data), !!!hc19_map)
+  
+  
   
   # Use chromosome number _ start _ end as identifier
   atac_data <- atac_data %>%
