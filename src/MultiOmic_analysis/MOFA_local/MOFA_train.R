@@ -61,8 +61,8 @@ source("MOFA_function.R")
 
 # Set the main variable 
 nb_factor <- 5
-input_path_rna  <- "data/RNAseq_run3_AO1_HC14_HC19_geneCounts.txt"
-input_path_atac <- "data/consensus_peaks.mLb.clN.featureCounts.txt"
+input_path_rna  <- "data/RNAseq.txt"
+input_path_atac <- "data/ATACseq.txt"
 outdir_model    <- "results/mofa/model"
 outdir_graph    <- "results/mofa/graph"
 
