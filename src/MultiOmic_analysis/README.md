@@ -33,3 +33,12 @@ In addition to the adapted R scripts from the local version, the cluster version
   - Extract the two RNA-seq feature count files from the copied folder and place them in data_interleukine/RNA/.
   - Extract the consensus feature counts and per-donor annotations for ATAC-seq from the copied folder and place them in data_interleukine/ATAC/.
   - Extract the consensus feature count for the combined ATAC-seq of donors HC16–HC19 and place it in data_interleukine/ATAC_consensus/.
+# Useful Ressources
+- [Official paper of MOFA2](https://pmc.ncbi.nlm.nih.gov/articles/PMC6010767/)
+- [Official GitHub repository of MOFA2](https://github.com/bioFAM/MOFA2)
+- [Tutorial for MOFA2](https://biofam.github.io/MOFA2/tutorials.html)
+- [Official FAQ for MOFA2](https://biofam.github.io/MOFA2/faq.html)
+
+- [Official paper of DIABLO](https://academic.oup.com/bioinformatics/article/35/17/3055/5292387)
+- [Official GitHub repository of DIABLO](https://github.com/singha53-zz/diablo)
+- [Tutorial and FAQ for DIABLO](https://mixomics.org/)
