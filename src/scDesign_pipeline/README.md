@@ -161,3 +161,9 @@ This validation relies on the scripts 08_QC_PCA_analysis.sh and 08_QC_PCA_analys
 4. Path to the merged pseudobulk profiles of the simulated ATAC-seq data.
 5. Output directory where the PCA plots will be saved.
 
+## Usefull ressources
+- [Official article of scDesign3](https://www.nature.com/articles/s41587-023-01772-1)
+- [Official GitHub repository of scDesign3](https://github.com/SONGDONGYUAN1994/scDesign3)
+- [Tutorial for scDesign3](https://songdongyuan1994.github.io/scDesign3/docs/index.html)
+- [Official article of MapMyCells](https://www.biorxiv.org/content/10.64898/2026.03.06.710160v1?__cf_chl_f_tk=gAYKLTHXqxvC1IJ3duT4fXCrbEF9a_Oeyqpf8h7Oqlo-1783082914-1.0.1.1-dzhrE4v7.xNo9gaDWayKSu1q8J96qZUjmxNQyhIF0k8)
+- [Official GitHub repository of MapMyCells](https://github.com/AllenInstitute/cell_type_mapper)
