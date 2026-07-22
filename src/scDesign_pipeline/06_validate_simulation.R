@@ -379,8 +379,7 @@ validateSimulation <- function(real_sce,
   message("  KS values :")
   print(ks_vals)
 
-  # --- tbl_summarystats : construction robuste ---
-  # (evite le crash vec_rbind quand unnest rencontre un vecteur vide)
+  # --- tbl_summarystats
   tbl_summarystats <- do.call(rbind, lapply(metric_cols, function(mc) {
     do.call(rbind, lapply(sce_list_name, function(meth) {
       idx  <- match(meth, metric_tbl$Method)
@@ -397,9 +396,8 @@ validateSimulation <- function(real_sce,
     filter(!is.na(Metric), !is.na(Value)) %>%
     droplevels()
 
-  message("  Niveaux Metric : ", nlevels(tbl_summarystats$Metric))
+  message("  levels Metric : ", nlevels(tbl_summarystats$Metric))
 
-  # --- ks_tbl_long : une ligne par métrique, côté Simulated uniquement ---
   ypos_tbl <- tbl_summarystats %>%
     group_by(Metric) %>%
     summarise(
