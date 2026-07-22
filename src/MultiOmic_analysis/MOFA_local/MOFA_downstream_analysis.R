@@ -2,7 +2,7 @@
 # Downstream analysis of a trained MOFA2 model (RNA-seq + ATAC-seq)
 # This script performs post-training analysis of a MOFA2 model
 #   1. Load the trained model and pre-computed RNA / ATAC data
-#   2. Visualise explained variance and correlations with covariates
+#   2. Visualise explained variance
 #   3. Explore latent factors (1D and 2D) by condition / donor
 #   4. Plot heatmaps of top genes / peaks for condition-associated factors
 #   5. Run gene set enrichment analysis (GSEA) on the RNA view
@@ -24,6 +24,7 @@ bioc_pkgs <- c(
   "org.Hs.eg.db", "ChIPseeker", "TxDb.Hsapiens.UCSC.hg38.knownGene",
   "GenomicRanges"
 )
+
 
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
   install.packages("BiocManager")
@@ -82,7 +83,12 @@ atac <- readRDS(file.path(outdir_model, "atac.rds"))
 
 #General parameter for the plots
 PCA_comparison    <- c("Factor1", "Factor3")
-genes_of_interest <- list("ENSG00000184557", "ENSG00000185338") #list of the gene of interest for the Specific gene anaylsis
+sig_factors_names <-  c("Factor1", "Factor3","Factor5")
+list_factor_condition <- as.numeric(gsub("Factor", "", sig_factors_names))
+genes_of_interest <- list("ENSG00000232810","ENSG00000136634") #list of the gene of interest for the Specific gene anaylsis
+
+
+
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -126,38 +132,8 @@ if (inherits(p_factor_cor, "pheatmap")) {
 } else {
   print(p_factor_cor)
 }
+
 dev.off()
-
-#plot correlation factor and covariate (donor, treatment)
-p_cov <- correlate_factors_with_covariates(
-  MOFAobject.trained,
-  covariates = c("condition", "donor"),
-  plot = "log_pval"
-)
-pdf(file.path(outdir_graph, "factor_covariate_association.pdf"), width = 5, height = 5)
-print(p_cov)
-dev.off()
-
-cor_results <- correlate_factors_with_covariates(
-  MOFAobject.trained,
-  covariates = c("condition", "donor"),
-  plot = "log_pval", return_data = TRUE
-)
-
-
-# Retrive the list of factor that are significantly linkewd to the treatement for plotting the heatmap for those factor
-threshold <- -log10(0.05)
-sig_factors_names     <- rownames(cor_results)[cor_results[, "condition"] > threshold]
-list_factor_condition <- as.numeric(gsub("Factor", "", sig_factors_names))
-sig_values            <- cor_results[sig_factors_names, "condition"]
-print(list_factor_condition)
-message("Factors significantly associated with condition (p.adj < 0.05):\n",
-        paste0("  ", sig_factors_names, ": -log10(p.adj) = ", round(sig_values, 3),
-               collapse = "\n"))
-
-
-
-
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -179,19 +155,6 @@ p_factor_condition <- plot_factor(MOFAobject.trained,
 Z <- get_factors(MOFAobject.trained, factors = "all")[[1]]
 meta <- samples_metadata(MOFAobject.trained)
 
-# Merge factor values with metadata, then reshape to long format  
-df <- as.data.frame(Z) %>%
-  mutate(sample = rownames(.)) %>%
-  left_join(meta, by = "sample") %>%
-  pivot_longer(cols = starts_with("Factor"),
-               names_to = "factor", values_to = "value")
-
-# Show the value of the factor per condition
-df %>%
-  filter(factor %in% sig_factors_names) %>%
-  group_by(factor, condition) %>%
-  summarise(mean_value = mean(value), .groups = "drop") %>%
-  pivot_wider(names_from = condition, values_from = mean_value)
 
 #2D scatter plot of the two factors
 
@@ -211,61 +174,15 @@ ggsave(file.path(outdir_graph, paste0("factors_2D_", paste(PCA_comparison, colla
 #--------------------------------------------------------------------------------------------------------------------------------------------
 #Per-factor linked to treatement heatmaps and top feature weights
 #---------------------------------------------------------------------------------------------------------------------------------------------
-#initilised list of top gene for latter diagnosis ans ATAC peak annotation step
-top_peaks <- list()
-top_gene <- list()
-for (factor in list_factor_condition) {
-  factor_name <- paste0("Factor", factor)
-  
 
-  #Weight plot of the most contributing gene/peak for the current factor
-  pdf(file.path(outdir_graph, paste0("factor", factor, "_weights_heatmaps.pdf")),
-      width = 8, height = 6)
-  
-  print(plot_top_weights(MOFAobject.trained, view = "rna",  factor = factor_name, nfeatures = 20))
-  print(plot_top_weights(MOFAobject.trained, view = "atac", factor = factor_name, nfeatures = 20))
-  
-  # heatmap
-  hm_rna <- plot_data_heatmap(MOFAobject.trained,
-                    view               = "rna",
-                    factor             = factor_name,
-                    features           = 25,
-                    cluster_rows       = TRUE,
-                    cluster_cols       = T,
-                    annotation_samples = c("condition", "donor"),
-                    main               = paste("Heatmap RNA:", factor_name))
-  top_gene[[factor_name]] <- hm_rna$tree_row$labels[hm_rna$tree_row$order]
-  hm_atac <-plot_data_heatmap(MOFAobject.trained,
-                    view               = "atac",
-                    factor             = factor_name,
-                    features           = 25,
-                    cluster_rows       = TRUE,
-                    cluster_cols       = T,
-                    annotation_samples = c("condition", "donor"),
-                    main               = paste("Heatmap ATAC:", factor_name))
-  #Retrieve the peak in the heatmap
-  top_peaks[[factor_name]] <- hm_atac$tree_row$labels[hm_atac$tree_row$order]
-  
-  
-  print(plot_data_scatter(MOFAobject.trained,
-                          view       = "rna",
-                          factor     = factor_name,
-                          features   = 6,         # 6 top features RNA
-                          color_by   = "condition",
-                          shape_by   = "donor",
-                          add_lm     = TRUE,    
-                          dot_size   = 2.5))
-  
-  print(plot_data_scatter(MOFAobject.trained,
-                          view       = "atac",
-                          factor     = factor_name,
-                          features   = 6,         # 6 top peaks ATAC
-                          color_by   = "condition",
-                          shape_by   = "donor",
-                          add_lm     = TRUE,
-                          dot_size   = 2.5))
-  dev.off()
-}
+# Anaylsis using the ENSEMBL_ID
+top_feature <- heatmap_analysis(MOFAobject.trained,list_factor_condition)
+top_peaks <-top_feature[["top_peaks"]]
+top_gene <- top_feature[["top_gene"]]
+
+#Analysis using the gene_name
+heatmap_analysis(MOFAobject.trained,list_factor_condition,gene_name=TRUE)
+
 
 # Diagnostic of the correlation of the top gene between the factor
 intersect(top_gene$Factor1,top_gene$Factor3)
@@ -281,9 +198,9 @@ cor(W[, c("Factor1", "Factor3", "Factor5")])
 #---------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #load the feature set bundled with MOFAdata
-#   - reactomeGS : Reactome pathway database
-#   - MSigDB C2  : curated gene sets
-#   - MSigDB C5  : Gene Ontology gene sets
+#    reactomeGS : Reactome pathway database
+#    MSigDB C2  : curated gene sets
+#    MSigDB C5  : Gene Ontology gene sets
 data("reactomeGS")
 data("MSigDB_v6.0_C2_human")
 data("MSigDB_v6.0_C5_human")
@@ -394,7 +311,7 @@ ggsave(file.path(outdir_graph, "factors_2D_by_gene_expression.pdf"),
 txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
 
 wb <- createWorkbook()
-
+top_peaks
 for (factor_name in names(top_peaks)) {
   top_peak_factor <- top_peaks[[factor_name]]
   
@@ -427,9 +344,6 @@ for (factor_name in names(top_peaks)) {
 
 saveWorkbook(wb, file.path(outdir_graph, "peaks_anotated_by_factor.xlsx"),
              overwrite = TRUE)
-
-
-
 
 
 

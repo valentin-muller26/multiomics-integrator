@@ -19,6 +19,7 @@ new_bioc <- bioc_pkgs[!bioc_pkgs %in% installed.packages()[, "Package"]]
 if (length(new_bioc)) {
   BiocManager::install(new_bioc, update = FALSE, ask = FALSE)
 }
+library(ggplot2)
 library(purrr)
 library(DESeq2)
 library(edgeR)
@@ -80,7 +81,8 @@ preprocess_atac <- function(atac_data, donors){
     replacement <- paste0(donors[i], "\\1")
     colnames(atac_data) <- gsub(pattern, replacement, colnames(atac_data))
   }
-  
+  cat("AVANT\n")
+  cat(capture.output(print(atac_data[1:3, sort(grep("HC19", colnames(atac_data), value=TRUE))])), sep="\n")
   #Change the inverted samples
   hc19_map <- c(
     "HC19NoStim"    = "HC19IL413IFN",
@@ -95,6 +97,9 @@ preprocess_atac <- function(atac_data, donors){
   
   colnames(atac_data) <- dplyr::recode(colnames(atac_data), !!!hc19_map)
   
+  cat("APRES\n")
+  cat(capture.output(print(atac_data[1:3, sort(grep("HC19", colnames(atac_data), value=TRUE))])), sep="\n")
+  
   
   # Use chromosome number _ start _ end as identifier
   atac_data <- atac_data %>%
@@ -108,6 +113,7 @@ preprocess_atac <- function(atac_data, donors){
   atac_data     <- atac_data[valid_peaks, , drop = FALSE]
   return(atac_data)
 }
+
 
 generate_long_dataframe <- function(dt, omic_name){
   #' Convert a wide omics matrix to MOFA2 long format

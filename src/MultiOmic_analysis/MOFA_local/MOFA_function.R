@@ -175,3 +175,102 @@ extract_pathway_genes <- function(enrichment, factor_name,
   pathway_table <- do.call(rbind, pathway_rows)
   return(pathway_table)
 }
+
+convert_ENSID_to_genesymbol <- function(MOFAobject.trained){
+  #' Convert the RNA-seq ENsEMBL ID to gene symbol 
+  #'@description
+  #'Function that convert the ENSEMBL ID to gene symbol and handles the duplicates by appending the ENSEMB_ID to the gene symbole 
+  #'and the non mapping by keeping the ENSEMBL ID instead of the NA 
+  #'
+  #'@param MOFAobject.trained : orignial model with the the feature name for the RNAseq as ENSEMBL ID
+  #'@return MOFAobject.trained : return the mofa model with the gene renamed to their gene symbol
+  current_names <- features_names(MOFAobject.trained)
+  rna_ensID <- current_names[["rna"]]
+  
+  # Map ENSG -> SYMBOL
+  gene_symbols <- mapIds(org.Hs.eg.db,
+                         keys      = rna_ensID,
+                         column    = "SYMBOL",
+                         keytype   = "ENSEMBL",
+                         multiVals = "first")
+  
+  # Keep the original ENSENBL ID when no symbol is found (avoids NA feature names)
+  new_rna_names <- ifelse(is.na(gene_symbols), rna_ensID, gene_symbols)
+  
+  # Handle duplicated symbols (two ENSG IDs mapping to the same symbol) by
+  # appending the ENSENBL ID, to keep feature names unique
+  dup_idx <- duplicated(new_rna_names) | duplicated(new_rna_names, fromLast = TRUE)
+  new_rna_names[dup_idx] <- paste0(new_rna_names[dup_idx], " (", rna_ensID[dup_idx], ")")
+  
+  # Apply the renaming to the RNA-seq
+  current_names[["rna"]] <- new_rna_names
+  features_names(MOFAobject.trained) <- current_names
+  return(MOFAobject.trained)
+}
+
+
+heatmap_analysis <- function(MOFAobject.trained,list_factor_condition,gene_name = FALSE){
+  #initilised list of top gene for latter diagnosis ans ATAC peak annotation step
+  top_peaks <- list()
+  top_gene <- list()
+  file_name <- "_weights_heatmaps.pdf"
+  if(gene_name ==FALSE){
+    file_name <- paste0("_ENSID_",file_name)
+  }else{
+    file_name <- paste0("_GeneSymbol_",file_name)
+    MOFAobject.trained <- convert_ENSID_to_genesymbol(MOFAobject.trained)
+  }
+  for (factor in list_factor_condition) {
+    factor_name <- paste0("Factor", factor)
+    #Weight plot of the most contributing gene/peak for the current factor
+    pdf(file.path(outdir_graph, paste0("factor", factor, file_name)),
+        width = 8, height = 6)
+    
+    print(plot_top_weights(MOFAobject.trained, view = "rna",  factor = factor_name, nfeatures = 20))
+    print(plot_top_weights(MOFAobject.trained, view = "atac", factor = factor_name, nfeatures = 20))
+    
+    # heatmap
+    hm_rna <- plot_data_heatmap(MOFAobject.trained,
+                                view               = "rna",
+                                factor             = factor_name,
+                                features           = 25,
+                                cluster_rows       = TRUE,
+                                cluster_cols       = T,
+                                annotation_samples = c("condition", "donor"),
+                                main               = paste("Heatmap RNA:", factor_name))
+    top_gene[[factor_name]] <- hm_rna$tree_row$labels[hm_rna$tree_row$order]
+    hm_atac <-plot_data_heatmap(MOFAobject.trained,
+                                view               = "atac",
+                                factor             = factor_name,
+                                features           = 25,
+                                cluster_rows       = TRUE,
+                                cluster_cols       = T,
+                                annotation_samples = c("condition", "donor"),
+                                main               = paste("Heatmap ATAC:", factor_name))
+    #Retrieve the peak in the heatmap
+    top_peaks[[factor_name]] <- hm_atac$tree_row$labels[hm_atac$tree_row$order]
+    
+    
+    print(plot_data_scatter(MOFAobject.trained,
+                            view       = "rna",
+                            factor     = factor_name,
+                            features   = 6,         # 6 top features RNA
+                            color_by   = "condition",
+                            shape_by   = "donor",
+                            add_lm     = TRUE,    
+                            dot_size   = 2.5))
+    
+    print(plot_data_scatter(MOFAobject.trained,
+                            view       = "atac",
+                            factor     = factor_name,
+                            features   = 6,         # 6 top peaks ATAC
+                            color_by   = "condition",
+                            shape_by   = "donor",
+                            add_lm     = TRUE,
+                            dot_size   = 2.5))
+    dev.off()
+  }
+  if(gene_name == FALSE){
+    return(list(top_gene = top_gene,top_peaks = top_peaks))
+  }
+}
