@@ -149,10 +149,10 @@ rna_top_before  <- select_top_mad(rna_norm,  n_top = 10000, omic_name = "RNA (pr
 atac_top_before <- select_top_mad(atac_norm, n_top = 10000, omic_name = "ATAC (pre-corr)")
 
 # Generate the different PCA
-pca_rna_before  <- plot_pca_diagnostic(rna_top_before,  "RNA — before donor correction (top MAD)")
-pca_rna_after   <- plot_pca_diagnostic(rna,             "RNA — after donor correction (top MAD)")
-pca_atac_before <- plot_pca_diagnostic(atac_top_before, "ATAC — before donor correction (top MAD)")
-pca_atac_after  <- plot_pca_diagnostic(atac,            "ATAC — after donor correction (top MAD)")
+pca_rna_before  <- plot_pca_diagnostic(rna_top_before,  "RNA - before donor correction (top MAD)")
+pca_rna_after   <- plot_pca_diagnostic(rna,             "RNA - after donor correction (top MAD)")
+pca_atac_before <- plot_pca_diagnostic(atac_top_before, "ATAC - before donor correction (top MAD)")
+pca_atac_after  <- plot_pca_diagnostic(atac,            "ATAC - after donor correction (top MAD)")
 
 # Save the plots
 ggsave(file.path(outdir_graph, "pca_rna_before.pdf"),  pca_rna_before,  width = 7, height = 5)
@@ -225,10 +225,8 @@ ggsave(file.path(outdir_graph, "elbo_convergence.pdf"),
 # Comparison of the factor stability across the 10 trained models
 while (!is.null(dev.list())) dev.off()
 pdf(file.path(outdir_graph, "compare_factors_stability.pdf"), width = 8, height = 7)
-p <- compare_factors(model_list)
-if (!is.null(p) && !is.null(p$gtable)) {
-  grid::grid.draw(p$gtable)
-} else {
-  print(p)
+comp_model <- compare_factors(model_list)
+if (!is.null(comp_model)) {
+  grid::grid.draw(comp_model$gtable)
 }
 while (!is.null(dev.list())) dev.off()
